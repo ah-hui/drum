@@ -25,9 +25,20 @@ function start(route, handle) {
         }
         // 不允许请求其他路径的文件
         pathname = pathname.replace(/\.\//g, '').replace(/\..\//g, '');
-        if (conf.res_ext.indexOf(path.extname(pathname)) >= 0) {
+        console.log(pathname);
+        if (conf.view_ext.indexOf(path.extname(pathname)) >= 0) {
+            // 获取视图资源
+            var filePath = path.join(conf.viewroot, pathname);
+            fs.exists(filePath, function(exists) {
+                if (exists) {
+                    readFile(req, res, filePath);
+                } else {
+                    notFound(res, filePath);
+                }
+            });
+        } else if (conf.res_ext.indexOf(path.extname(pathname)) >= 0) {
             // 获取静态资源
-            var filePath = path.join(conf.webroot, pathname);
+            var filePath = pathname.substring(1, pathname.length); // 去掉首个斜线
             fs.exists(filePath, function(exists) {
                 if (exists) {
                     readFile(req, res, filePath);
@@ -89,7 +100,7 @@ function notFound(res, filePath) {
 function getContentType(filePath) {
     var contentType = "";
     // 使用路径解析模块获取文件扩展名 
-    var ext = libPath.extname(filePath);
+    var ext = path.extname(filePath);
     switch (ext) {
         case ".html":
             contentType = "text/html";
