@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Drum 首页</title>
+    <link href="../public/stylesheets/main.css" rel="stylesheet" type="text/css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../public/stylesheets/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="../public/stylesheets/ionicons.min.css">
+</head>
+
+<body>
+    <header>
+        <h2>Drum V0.1</h2>
+        <a href="#" class="stuts">Fork me on <span>GitHub</span></a>
+    </header>
+
+    <div class="container" style="background-color:#555;">
+        <div id="banner" class="banner">
+            <span>操作：</span>
+            <span><i class="icon ion-arrow-up-a"></i>上</span>
+            <span><i class="icon ion-arrow-down-a"></i>下</span>
+            <span>Esc返回</span>
+            <span>Enter确认</span>
+        </div>
+        <div id="menu" class="menu">
+            <div class="list">
+                <div id="btnPlay" class="menu_btn" onclick="checkBtn(this)" active="true"><span>开始游戏</span></div>
+                <div id="btnParmsSet" class="menu_btn" onclick="checkBtn(this)"><span>参数设置</span></div>
+                <div id="btnKeyMapping" class="menu_btn" onclick="checkBtn(this)"><span>按键设置</span></div>
+                <div id="btnQuit" class="menu_btn" onclick="checkBtn(this)"><span>退出</span></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <!-- To the right -->
+        <div class="pull-right">
+            Anything you want
+        </div>
+        <!-- Default to the left -->
+        <strong>Copyright &copy; 2017 <a href="#">Company</a>.</strong> All rights reserved.
+    </footer>
+
+    <div class="side">
+        <ul>
+            <li id="back_focus" style="display: list-item;">
+                <a href="javascript:goFocus();" class="sidefocus"><i class="fa fa-dot-circle-o fa-3x" style="color:#fff;margin-left: 9px;margin-top:6px;"></i></a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- jQuery 1.12.4 -->
+    <script src="../public/javascripts/jquery/jquery-1.12.4.min.js"></script>
+    <script src="../public/javascripts/config.js"></script>
+    <script src="../public/javascripts/Stack.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $(window).scroll(function() {
+                if ($(window).scrollTop() !== 58) {
+                    $("#back_focus").fadeIn(500);
+                } else {
+                    $("#back_focus").fadeOut(500);
+                }
+            });
+        });
+
+        function goFocus() {
+            $('html,body').animate({
+                'scrollTop': 58
+            }, 300);
+        }
+
+        // 屏蔽浏览器up和down按钮事件
+        $(window).keydown(function(event) { // keyboard-down
+            switch (event.keyCode) {
+                case 38: //up
+                    keySelect(1);
+                    return false;
+                    break;
+                case 40: //down
+                    keySelect(0);
+                    return false;
+                    break;
+                case 13: //Enter
+                    btnSubmit();
+                    return false;
+                    break;
+                case 27: //Esc
+                    console.log("Esc");
+                    return false;
+                    break;
+                default:
+                    //console.log(event.keyCode);
+            }
+        });
+
+        function keySelect(type) {
+            var selected = null;
+            if (type === 0) { //down
+                var old = $(".menu_btn[active='true']");
+                old.removeAttr("active");
+                if (old.next().length > 0) {
+                    selected = old.next();
+                } else {
+                    selected = $(".menu_btn").eq(0);
+                }
+            } else { //up
+                var old = $(".menu_btn[active='true']");
+                old.removeAttr("active");
+                if (old.prev().length > 0) {
+                    selected = old.prev();
+                } else {
+                    selected = $(".menu_btn").eq($(".menu_btn").length - 1);
+                }
+            }
+            selected.attr("active", "true");
+        }
+
+        function btnSubmit() {
+            var selected = $(".menu_btn[active='true']");
+            switch (selected.attr("id")) {
+                case "btnPlay": //
+                    window.location.href = "list.html";
+                    break;
+                case "btnParmsSet": //
+                    window.location.href = "play.html";
+                    break;
+                case "btnKeyMapping": //
+                    window.location.href = "play.html";
+                    break;
+                case "btnQuit": //
+                    alert("窗口即将关闭!");
+                    break;
+            }
+        }
+
+        function checkBtn(obj) {
+            var flag = $(obj).attr("active");
+            if (!(flag && flag === "true")) {
+                $(".menu_btn[active='true']").removeAttr("active");
+                $(obj).attr("active", "true");
+            }
+            // switch
+            switch ($(obj).attr("id")) {
+                case "btnPlay": //
+                    window.location.href = "list.html";
+                    break;
+                case "btnParmsSet": //
+                    window.location.href = "play.html";
+                    break;
+                case "btnKeyMapping": //
+                    window.location.href = "play.html";
+                    break;
+                case "btnQuit": //
+                    alert("窗口即将关闭!"); // alert阻塞了页面重新渲染
+                    break;
+            }
+        }
+    </script>
+</body>
+
+</html>
