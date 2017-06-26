@@ -24,6 +24,7 @@ function Stack() {
     this.push = push;
     this.pop = pop;
     this.peek = peek;
+    this.initFromArray = initFromArray;
     this.length = length;
     this.clear = clear;
 }
@@ -56,6 +57,16 @@ function peek() {
     return this.dataStore[this.top - 1];
 }
 
+/**
+ * 5. initFromArray()
+ * initFromArray() 提供一种初始化方法，直接将数组转化成栈
+ * @param {*} arr 
+ */
+function initFromArray(arr) {
+    this.dataStore = arr;
+    this.top = arr.length;
+}
+
 function length() {
     return this.top;
 }
@@ -83,5 +94,14 @@ console.log("length: " + s.length());
 console.log(s.peek());
 s.push("Clayton");
 console.log(s.peek());
+*/
 
-     * */
+// var s = new Stack();
+// s.initFromArray(["David", "Raymond", "Bryan"]);
+// console.log("length: " + s.length());
+// console.log(s.peek());
+// var popped = s.pop();
+// console.log("The popped element is: " + popped);
+// console.log(s.peek());
+// debugger;
+// console.log(s.peek());

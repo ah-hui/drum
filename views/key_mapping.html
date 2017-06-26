@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Drum按键映射</title>
+    <link href="../public/stylesheets/main.css" rel="stylesheet" type="text/css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../public/stylesheets/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="../public/stylesheets/ionicons.min.css">
+</head>
+
+<body>
+    <header>
+        <h2>Drum V0.1</h2>
+        <a href="#" class="stuts">Fork me on <span>GitHub</span></a>
+    </header>
+
+    <div class="container">
+        <div id="banner" class="banner">
+            <span>操作：</span>
+            <span><i class="icon ion-arrow-up-a"></i>上</span>
+            <span><i class="icon ion-arrow-down-a"></i>下</span>
+            <span>Esc返回</span>
+            <span>Enter确认</span>
+        </div>
+        <div id="menu" class="menu">
+            <div class="list">
+                <div id="btnPlay" class="menu_btn" onclick="checkBtn(this)" active="true"><span>开始游戏</span></div>
+                <div id="btnParmsSet" class="menu_btn" onclick="checkBtn(this)"><span>参数设置</span></div>
+                <div id="btnKeySet" class="menu_btn" onclick="checkBtn(this)"><span>按键设置</span></div>
+                <div id="btnQuit" class="menu_btn" onclick="checkBtn(this)"><span>退出</span></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <!-- To the right -->
+        <div class="pull-right">
+            Anything you want
+        </div>
+        <!-- Default to the left -->
+        <strong>Copyright &copy; 2017 <a href="#">Company</a>.</strong> All rights reserved.
+    </footer>
+
+    <div class="side">
+        <ul>
+            <li id="back_focus" style="display: list-item;">
+                <a href="javascript:goFocus();" class="sidefocus"><i class="fa fa-dot-circle-o fa-3x" style="color:#fff;margin-left: 9px;margin-top:6px;"></i></a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- jQuery 1.12.4 -->
+    <script src="js/jquery/jquery-1.12.4.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/Stack.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $(window).scroll(function() {
+                if ($(window).scrollTop() !== 58) {
+                    $("#back_focus").fadeIn(500);
+                } else {
+                    $("#back_focus").fadeOut(500);
+                }
+            });
+        });
+
+        function goFocus() {
+            $('html,body').animate({
+                'scrollTop': 58
+            }, 300);
+        }
+
+        // 屏蔽浏览器up和down按钮事件
+        $(window).keydown(function(event) { // keyboard-down
+            switch (event.keyCode) {
+                case 38: //up
+                    keySelect(1);
+                    return false;
+                    break;
+                case 40: //down
+                    keySelect(0);
+                    return false;
+                    break;
+                case 13: //Enter
+                    console.log("Enter");
+                    return false;
+                    break;
+                case 27: //Esc
+                    console.log("Esc");
+                    return false;
+                    break;
+                default:
+                    //console.log(event.keyCode);
+            }
+        });
+
+        function keySelect(type) {
+            var selected = null;
+            if (type === 0) { //down
+                $(".menu_btn").each(function(e) {
+                    if ($(this).attr("active") === "true") {
+                        $(this).removeAttr("active");
+                        // debugger;
+                        if ($(this).next().length > 0) {
+                            selected = $(this).next();
+                        } else {
+                            selected = $(".menu_btn").eq(0);
+                        }
+                    }
+                });
+            } else { //up
+                $(".menu_btn").each(function(e) {
+                    if ($(this).attr("active") === "true") {
+                        $(this).removeAttr("active");
+                        // debugger;
+                        if ($(this).prev().length > 0) {
+                            selected = $(this).prev();
+                        } else {
+                            selected = $(".menu_btn").eq($(".menu_btn").length - 1);
+                        }
+                    }
+                });
+            }
+            selected.attr("active", "true");
+        }
+
+        function checkBtn(obj) {
+            var flag = $(obj).attr("active");
+            if (!(flag && flag === "true")) {
+                $(".menu_btn").each(function(e) {
+                    if ($(this).attr("active") === "true") {
+                        $(this).removeAttr("active");
+                    }
+                });
+                $(obj).attr("active", "true");
+            }
+            // switch
+        }
+    </script>
+</body>
+
+</html>

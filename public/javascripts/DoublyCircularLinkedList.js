@@ -45,6 +45,30 @@ function DoublyCircularLinkedList() {
         }
     };
 
+    this.initFromArray = function(arr) {
+        head = null;
+        length = 0;
+        var current = null;
+        arr.forEach(function(element, index) {
+            if (index === 0) {
+                head = new Node(element);
+                current = head;
+            } else if (index === (arr.length - 1)) {
+                var node = new Node(element);
+                current.next = node;
+                node.previous = current;
+                node.next = head;
+                head.previous = node;
+            } else {
+                var node = new Node(element);
+                current.next = node;
+                node.previous = current;
+                current = node;
+            }
+            length++;
+        });
+    };
+
     this.get = function(index) {
         if (index > -1 && index < length) {
             var current = head,
@@ -159,6 +183,7 @@ function DoublyCircularLinkedList() {
 }
 
 // var clist = new DoublyCircularLinkedList();
+// clist.initFromArray(["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"]);
 // clist.append("a1");
 // clist.append("a2");
 // clist.append("a3");
@@ -171,4 +196,4 @@ function DoublyCircularLinkedList() {
 // clist.append("a10");
 // console.log(clist.toString());
 // console.log(clist.toStringReverse());
-// clist.listClip(3, 5);
+// console.log(clist.listClip(3, 5));

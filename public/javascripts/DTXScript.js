@@ -1,5 +1,9 @@
 /**
  * DTX音乐脚本解析：
+ * 0.请记住一些基本规则：
+ * 0.1.只解析以"#"开头的行,其余的将被忽略
+ * 0.2.如果出现";",说明是注释,可以新行注释,也可以行尾注释
+ * 0.3.
  * 
  * 1.DTXCreator制鼓谱时关心以下10个通道:
  * 
@@ -7,12 +11,24 @@
  * -- Hi-hat_Closed = HH (Hi-hat_Opened = HHO) = 踩镲
  * -- LP = 增设的其他器件
  * -- Snare-SD = 军鼓
- * -- Tom1-HT = 嗵嗵鼓1
+ * -- Tom1-HT = 嗵嗵鼓1(HighTom)
  * -- Bass-BD = 低音大鼓
- * -- Tom2-LT = 嗵嗵鼓2
- * -- Tom3-FT = 嗵嗵鼓3
+ * -- Tom2-LT = 嗵嗵鼓2(LowTom)
+ * -- Tom3-FT = 嗵嗵鼓3(FloorTom)
  * -- Ride-RD = 节奏镲
- * -- Right Crash-RC = 吊镲(左)
+ * -- Right Crash-RC = 吊镲(右)
+ * 
+ * 通道对应（来自手册-16和19与DTXCreator有不同?暂以DTXC为准）
+ * 11 = HiHatClose
+ * 12 = Snare
+ * 13 = BassDrum
+ * 14 = HighTom
+ * 15 = LowTom
+ * 16 = Cymbal
+ * 17 = FloorTom
+ * 18 = HiHatOpen
+ * 19 = RideCymbal
+ * 1A = LeftCymbal
  * 
  * 2.每个通道可以绑定最多主音色和副音色两种音色，但可以放置无限制种音色；
  * 2.1.通道绑定音色后放置音色为绑定音色，也可以选择WAV栏的音色放置；
@@ -50,20 +66,27 @@
  * 05 #COMMENT: www.dtxchina.com-------------标题下显示的文字
  * 06 #PANEL: some text www.dtxchina.com-----游戏中跑动的文字
  * 07 #PREVIEW: sound\pre.ogg----------------试听文件
- * 08 #PREIMAGE: graphics\bg.png-------------预览图片
- * 09 #STAGEFILE: graphics\wait.jpg----------歌曲读取图片
- * 10 #BACKGROUND: graphics\bg.jpg-----------背景图片
- * 11 #RESULTIMAGE: graphics\bg.jpg----------结束图片
- * 12 #BPM: 127.500876568526-----------------BPM谱面速度
+ * 08 #PREIMAGE: graphics\bg.png-------------预览图片(204X269)
+ * 09 #STAGEFILE: graphics\wait.jpg----------演奏时加载的图片(640X480)
+ * 10 #BACKGROUND: graphics\bg.jpg-----------背景图片(640X480)
+ * .. #WALL：<图像文件名>等同于#BACKGROUND:
+ * 11 #RESULTIMAGE: graphics\bg.jpg----------结束图片(204X269)
+ * .. #RESULTIMAGE_SS: graphics\bg.jpg----------结束图片(成绩为SS时)
+ * .. #RESULTIMAGE_A: graphics\bg.jpg----------结束图片(成绩为A时)
+ * .. #RESULTMOVIE：<视频文件名>
+ * .. #RESULTMOVIE_xx：<视频文件名>(SS/S/A/B/C/D/E)
+ * 12 #BPM: 127.500876568526-----------------BPM谱面速度-每分钟有多少个四分音符
  * 13 #DLEVEL: 50----------------------------鼓难度
+ * .. #GLEVEL：<吉他水平(难度)> 
+ * .. #BLEVEL：<基准面> (鼓/吉他的)难度基准1-100
  * 14 
  * 15 
  * 16 #GENRE: Hard Rock----------------------Free栏里随意填写内容
  * 17 #SIZE0F: 75----------------------------Free栏里随意填写内容
  * 18
  * 19 ---------------------------------------【标识2】此处开始记录WAV栏载入的音频文件
- * 20 #WAV01: sound\bg.mp3-------------------BGM音频文件
- * 21 #VOLUME01: 99--------------------------BGM音量
+ * 20 #WAV01: sound\bg.mp3-------------------BGM音频文件(sound\bg.mp3注册在01通道上)
+ * 21 #VOLUME01: 99--------------------------BGM音量(01通道的音量为99)
  * 22 #BGMWAV: 01----------------------------指定01为BGM
  * 23 #WAV28: drums\Snare_Custom.wav---------snare对应文件及编号28
  * 24 #VOLUME28: 25--------------------------snare音量

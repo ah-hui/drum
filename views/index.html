@@ -65,6 +65,7 @@
                     $("#back_focus").fadeOut(500);
                 }
             });
+            goFocus();
         });
 
         function goFocus() {
@@ -79,19 +80,15 @@
                 case 38: //up
                     keySelect(1);
                     return false;
-                    break;
                 case 40: //down
                     keySelect(0);
                     return false;
-                    break;
                 case 13: //Enter
                     btnSubmit();
                     return false;
-                    break;
                 case 27: //Esc
                     console.log("Esc");
                     return false;
-                    break;
                 default:
                     //console.log(event.keyCode);
             }
@@ -126,10 +123,10 @@
                     window.location.href = "list.html";
                     break;
                 case "btnParmsSet": //
-                    window.location.href = "play.html";
+                    window.location.href = "parms.html";
                     break;
                 case "btnKeyMapping": //
-                    window.location.href = "play.html";
+                    window.location.href = "key_mapping.html";
                     break;
                 case "btnQuit": //
                     alert("窗口即将关闭!");
@@ -149,10 +146,10 @@
                     window.location.href = "list.html";
                     break;
                 case "btnParmsSet": //
-                    window.location.href = "play.html";
+                    window.location.href = "parms.html";
                     break;
                 case "btnKeyMapping": //
-                    window.location.href = "play.html";
+                    window.location.href = "key_mapping.html";
                     break;
                 case "btnQuit": //
                     alert("窗口即将关闭!"); // alert阻塞了页面重新渲染

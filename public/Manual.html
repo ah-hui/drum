@@ -1,0 +1,969 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html lang="ja">
+
+<head lang="ja">
+    <title>DTXMania User's Manual [付録/DTXフォーマット]</title>
+    <meta name="keywords" content="DTXMania, Manual, Help">
+    <meta http-equiv="Content-Type" content="text/html; charset=shift_jis">
+    <link rel="SHORTCUT ICON" href="http://www.donburi.to/~from/dtxmania/images/dtx.ico">
+    <link rel="stylesheet" href="../../dtxmania.css" type="text/css">
+    <link rel="stylesheet" href="../manual.css" type="text/css">
+</head>
+
+<body>
+
+    <!-- ページ枠 -->
+    <table class="mainpage">
+        <tr>
+            <td class="mainpage">
+
+                <!-- ページヘッダ -->
+                <table class="subject" cellspacing="0">
+                    <tr>
+                        <th class="subject"><img src="../images/title.jpg"></th>
+                    </tr>
+                    <tr>
+                        <td class="subject">■ DTX ファイルフォーマット</td>
+                    </tr>
+                </table>
+
+                <!-- 本文 -->
+                <div style="margin-left: 0.5em">
+
+
+
+
+                    <h1>■ 基本構造</h1>
+
+                    <p>DTXファイル（拡張子 .DTX ）は、 <a href="#header_desc">ヘッダ記述</a> と <a href="#object_desc">オブジェクト記述</a> からなるテキストファイルです。</p>
+
+                    <table class="list2" border="0" cellpadding="4" cellspacing="0">
+                        <tr>
+                            <th class="list2_subhead">ヘッダ記述</th>
+                            <td class="list2">
+                                曲全体に関する情報（タイトルや使用する音声ファイルなど）を定義する行です。
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">オブジェクト記述</th>
+                            <td class="list2">
+                                譜面に関する情報（どのチップをどこに配置してどの音を鳴らすか）を定義する行です。 チャンネルを使ってオブジェクトの機能を指定します。
+                            </td>
+                        </tr>
+                    </table>
+
+                    <p align="center">
+                        <table class="imagedesc">
+                            <tr>
+                                <td><img src="images/dtx_ex.png"></td>
+                            </tr>
+                            <tr>
+                                <td class="imagedesc">DTXファイルの記述例</td>
+                            </tr>
+                        </table>
+                    </p>
+
+
+                    <h2>書式</h2>
+
+                    <p>基本的に、DTXファイルの書式はBMSに準拠しています。<br> 　しかし、BMSのすべての機能を実現しているわけでもなく、また独自の拡張を施していることもあり、 DTXMania 用の演奏データが他のBMSプレイヤーで正常に演奏できるという保証はありません。 あらかじめご了承下さい。
+                    </p>
+
+
+                    <h2>コメント文</h2>
+
+                    <p>未対応のヘッダや、<em><tt>'#'</tt> （半角シャープ記号）で始まらない行は無視</em>します。<br> 　また、行中に <tt>';'</tt> （セミコロン）が現れた場合は、それ以降行末までをコメントと見なし無視します。 <br> 　（ GDAC2 では行中の <tt>';'</tt> に対応していないため、誤動作する可能性があります。ご注意下さい。）</p>
+                    <pre>
+　　; 第１小節                            <font color="#0000FF">← コメント行</font>
+　　#00111: 0101010101010101    ; HiHat   <font color="#0000FF">← 行中のコメント（GDAC2では誤動作するので注意）</font>
+　　#00112: 00020002            ; Snare
+　　#00113: 03000300            ; Bass
+</pre>
+
+                    <h2>音声ファイル</h2>
+
+                    <p>DTXで使用できる音声ファイルの種類はそれを再生するゲーム本体とパソコンのCODECインストール状況に依存しますが、DTXMania の場合、<em>WAV, XA, MP3</em> を使用することができます。</p>
+                    <h2>画像ファイル</h2>
+
+                    <p>DTXで使用できる画像ファイルの種類はそれを再生するゲーム本体に依存しますが、DTXMania の場合、<em>BMP, PNG, JPEG</em> を使用することができます。</p>
+
+
+                    <h2>動画ファイル</h2>
+
+                    <p>DTXで使用できる動画ファイルの種類は、それを再生するゲーム本体とパソコンのCODECインストール状況に依存しますが、DTXMania の場合、<em>VFW (Video for Windows; AVIファイル)</em> を使用することができます。（DirectShow には対応していません。）<br>
+                        <br> 　なお、動画のサイズについては CODEC ごとに定められた法則（ 8 の倍数でなければならないなど）があり、これを守らないと DTXMania はシステムエラーを発生して異常終了することがあります。 そのため、目的のサイズより少し小さめに作るか、少し大きめに作ってはみ出し部分を断ち切るなどの対策が必要になります。
+                        <br>
+
+
+
+
+                        <a name="header_desc"></a>
+                        <h1>■ ヘッダ記述</h1>
+
+                        <dl class="head">
+
+                            <dt class="head"><a name="head_title">
+	#TITLE: &lt;曲のタイトル&gt; 
+	</a></dt>
+                            <dd class="head">
+                                演奏データの<em>タイトル</em>を記述します。
+                            </dd>
+
+                            <dt class="head"><a name="head_artist">
+	#ARTIST: &lt;アーティスト名&gt; 
+	</a></dt>
+                            <dd class="head">
+                                演奏データの<em>アーティスト名</em>を記述します。
+                            </dd>
+
+                            <dt class="head"><a name="head_comment">
+	#COMMENT:	&lt;コメント&gt;
+	</dt></a>
+                            <dd class="head">
+                                演奏データに対する<em>コメント</em>を記述します。
+                            </dd>
+
+                            <dt class="head"><a name="head_panel">
+	#PANEL: &lt;パネルコメント&gt;
+	</a></dt>
+                            <dd class="head">
+                                <em>演奏中に表示するコメント</em>を記述します。
+                            </dd>
+
+                            </a>
+                            <dt class="head">
+	<a name="head_dlevel">#DLEVEL: &lt;ドラムレベル&gt;</a><br>
+	<a name="head_glevel">#GLEVEL: &lt;ギターレベル&gt;</a><br>
+	<a name="head_blevel">#BLEVEL: &lt;ベースレベル&gt;</a><br>
+	</dt>
+                            <dd class="head">
+                                ドラム、ギター、ベースの難易度を <em>1（易しい）～100（難しい）</em>で示します。<br> ただし、10 以下の数値を指定した場合は自動的に 10 段階指定（1～10）と見なし、値を 10 倍して使用します（表示が 10～100 になる）。 ただし、G2D データの場合は 10 以下の値であっても常に 100 段階と見なされます。<br>
+                            </dd>
+
+                            <dt class="head"><a name="head_bpm">
+	#BPM: &lt;BPM値&gt;
+	</a></dt>
+                            <dd class="head">
+                                演奏の速さを <em>BPM（Beat per Minute；１分間に４分音符が何個あるか）</em> で指定します。<br> 小数での指定が可能です。
+                            </dd>
+
+                            <dt class="head"><a name="head_bpmzz">
+	#BPMzz: &lt;BPM値&gt;
+	</a></dt>
+                            <dd class="head">
+                                演奏の速さを <em>BPM</em> で指定します。<br>
+                                <a href="#head_bpm"><tt>#BPM:</tt></a>（zzの部分がない）が演奏開始時の BPM を指定するのに対し、
+                                <tt>#BPMzz:</tt> では、拡張再生テンポチャンネル(08)で使用するための値を定義します。BPM 値は小数での指定が可能です。<br>
+                                <em><tt>zz</tt> は 01～ZZ （36 進数表記）</em>を指定することができます。
+                            </dd>
+
+                            <dt class="head"><a name="head_basebpm">
+	#BASEBPM: &lt;BPM値&gt;
+	</a></dt>
+                            <dd class="head">
+                                演奏データの <em>BPM の基本値</em>を指定します。小数での指定が可能です。<br> チャンネル <a href="#ch_03">03</a>, <a href="#ch_08">08</a> で指定したすべての BPM についてこの基本値が加算されて適用されます。<br> なお、
+                                <a href="#head_bpm"><tt>#BPM:</tt></a> で指定した値には加算されません。
+                                <pre>
+例：
+　　#BASEBPM: 100
+　　#01003:FF
+→ 小節10の先頭で、BPM=255+100=355になります。
+</pre></dd>
+                            <!-- この件は抹殺するか…(05/11/27)
+<dt class="head"><a name="head_midifile">
+	#MIDIFILE: &lt;MIDIファイル名&gt;
+	</a></dt>
+<dd class="head">
+	BGMとして鳴らすMIDIファイルを指定します。<br>
+	MIDIファイルは、演奏ファイルのあるフォルダを基点として相対パスで指定します。<br>
+	現在は機能していません。
+	</dd>
+--><dt class="head"><a name="head_stagefile">
+	#STAGEFILE: &lt;画像ファイル名&gt;
+	</a></dt>
+                            <dd class="head">
+                                曲が選択されて演奏データが<em>ロードされている間に表示する画像</em>（640x480ドットのBMP, JPEG, PNGファイル；それ以上のサイズは右下方からカット）を指定します。
+                            </dd>
+
+                            <dt class="head"><a name="head_preview">
+	#PREVIEW: &lt;音声ファイル名&gt;
+	</a></dt>
+                            <dd class="head">
+                                選曲画面で曲が<em>選択されているときに演奏される音声ファイル</em>（WAV,XA,MP3ファイル）を指定します。
+                            </dd>
+
+                            <dt class="head"><a name="head_preimage">
+	#PREIMAGE: &lt;画像ファイル名&gt;
+	</a></dt>
+                            <dd class="head">
+                                選曲画面で曲が<em>選択されているときに表示される画像ファイル</em>（204x269ドットのBMP, PNG, JPEGファイル）を指定します。<br>
+                            </dd>
+
+                            <dt class="head"><a name="head_premovie">
+	#PREMOVIE: &lt;動画ファイル名&gt;
+	</a></dt>
+                            <dd class="head">
+                                選曲画面で曲が<em>選択されているときに表示される動画ファイル</em>（204x269ドットのAVIファイル）を指定します。<br>
+                            </dd>
+
+                            <dt class="head"><a name="head_background">
+	#BACKGROUND: &lt;画像ファイル名&gt;
+	</a></dt>
+                            <dd class="head">
+                                <em>演奏画面の背景となる画像</em>（640x480ドットの BMP, PNG, JPEG ファイル）を指定します。<br> この画像は、DTXMania の演奏画面と半透明合成されて表示されます。<br> 画像サイズが 640x480 より小さい場合には、同じ画像が繰り返し並べて（タイル並びで）表示されます。
+                            </dd>
+
+                            <dt class="head"><a name="head_wall">
+	#WALL: &lt;画像ファイル名&gt;
+	</a></dt>
+                            <dd class="head">
+                                <a href="#head_background"><tt>#BACKGROUND:</tt></a> と同等です。（BandJAM互換用）<br>
+                                <tt>#BACKGROUND:</tt> は BandJAM では認識されないため、#WALL → #BACKGROUND の順番で別々のファイルを指定することで、DTXMania と BandJAM で別々の画像を背景にすることが可能です。（DTXManiaではどちらも認識し、後から出てきた方が優先となります。）
+                            </dd>
+
+                            <dt class="head"><a name="head_resultimage">
+	#RESULTIMAGE: &lt;画像ファイル名&gt;
+	</a></dt>
+                            <dd class="head">
+                                <em>結果表示画面で表示する画像</em>（204x269ドットの BMP, PNG, JPEG ファイル）を指定します。<br>
+                                <tt>#RESULTIMAGE:</tt> が指定されない時は、<a href="#head_preimage"><tt>#PREIMAGE:</tt></a>で指定したプレビュー画像が表示されます。
+                            </dd>
+
+                            <dt class="head"><a name="head_resultimage_xx">
+	#RESULTIMAGE_xx: &lt;画像ファイル名&gt;
+	</a></dt>
+                            <dd class="head">
+                                <em>結果表示画面で表示する画像</em>（204x269ドットの BMP, PNG, JPEG ファイル）を指定します。<br>
+                                <tt>#RESULTIMAGE_xx:</tt> の <tt>xx</tt> の部分には、<tt>'SS','S','A','B','C','D','E'</tt> のいずれかが該当し、 演奏結果のランクが「
+                                <tt>xx</tt> 以上」であった場合に指定した画像が表示されます。<br>
+                                <a href="#head_resultimage"><tt>#RESULTIMAGE:</tt></a> を使った場合は演奏結果によらず常に同じ画像が表示されますが、本ヘッダを使用すると、 演奏結果（ランク）により表示する画像を変えることができます。
+                                <br>
+                                <pre>
+例：
+　　#RESULTIMAGE_A: resimage1.jpg
+　　#RESULTIMAGE_D: resimage2.jpg
+
+→ リザルト画像として、ランクが D 以上なら resimage2.jpg 、 A 以上ならresimage1.jpg 、
+　 その他（この場合ランクE ）ならプレビュー画像が表示される。
+</pre><dt class="head"><a name="head_resultmovie">
+	#RESULTMOVIE: &lt;動画ファイル名&gt;
+	</a></dt>
+                                <dd class="head">
+                                    <em>結果表示画面で表示する動画</em>（204x269ドットの AVI ファイル）を指定します。<br>
+                                </dd>
+
+                                <dt class="head"><a name="head_resultmovie_xx">
+	#RESULTMOVIE_xx: &lt;動画ファイル名&gt;
+	</a></dt>
+                                <dd class="head">
+                                    <em>結果表示画面で表示する動画</em>（204x269ドットの AVI ファイル）を指定します。<br>
+                                    <tt>#RESULTIMAGE_xx:</tt> の <tt>xx</tt> の部分には、<tt>'SS','S','A','B','C','D','E'</tt> のいずれかが該当し、 演奏結果のランクが「
+                                    <tt>xx</tt> 以上」であった場合に指定した動画が再生されます。<br>
+                                    <a href="#head_resultmovie"><tt>#RESULTMOVIE:</tt></a> を使った場合は演奏結果によらず常に同じ動画が再生されますが、本ヘッダを使用すると、 演奏結果（ランク）により再生する動画を変えることができます。
+                                    <br> 使用例については、
+                                    <a href="#head_resultimage_xx"><tt>#RESULTIMAGE_xx:</tt></a> を参照下さい。
+                                </dd>
+
+                                <dt class="head"><a name="head_wavzz">
+	#WAVzz: &lt;音声ファイル名&gt;
+	</a></dt>
+                                <dd class="head">
+                                    <em>番号 zz に登録する音声</em>（WAV, XAファイル）を指定します。<br>
+                                    <tt>'zz'</tt> には 36 進数表記で <em>01～ZZ</em> までを指定することができます。<br> このヘッダで登録した番号 <tt>zz</tt> は、 WAVE 関連チャンネル（<a href="#ch_01">01</a>, <a href="#ch_11-1A">11～1A</a>, etc.）で使用されます。
+                                </dd>
+
+                                <dt class="head"><a name="head_volumezz">
+	#VOLUMEzz: &lt;音量割合&gt;
+	</a></dt>
+                                <dd class="head">
+                                    番号 <tt>zz</tt> に登録された音声の<em>再生音量</em>を指定します。<br>
+                                    <tt>'zz'</tt> には 36 進数表記で <em>01～ZZ</em> までを指定することができます。<br> 音量割合には、
+                                    <a href="#head_wavzz"><tt>#WAVzz:</tt></a> で指定したWAVファイルの原音を 100% とした時の再生音量を <em>0～100</em> [%] で指定します（10進数表記）。ただし、100%より大きい値は指定できません。
+                                </dd>
+
+                                <dt class="head"><a name="head_wavvolzz">
+	#WAVVOLzz: &lt;音量割合&gt;
+	</a></dt>
+                                <dd class="head">
+                                    <a href="#head_volumezz"><tt>#VOLUMEzz:</tt></a> と同等です。<br> GDAC2 で誤動作する可能性がありますので、<a href="#head_volumezz"><tt>#VOLUMEzz:</tt></a> の使用をお勧めします。
+                                </dd>
+
+                                <dt class="head"><a name="head_panzz">
+	#PANzz: &lt再生位置&gt;
+	</a></dt>
+                                <dd class="head">
+                                    番号 <tt>zz</tt> に登録された音声の<em>再生位置</em>を指定します。<br>
+                                    <tt>'zz'</tt> には 36 進数表記で <em>01～ZZ</em> までを指定することができます。<br> 再生位置には、
+                                    <a href="#head_wavzz"><tt>#WAVzz:</tt></a> で指定したWAVファイルの原音を 0（中央）とした時の再生位置を <em>-100(左)～100(右)</em> で指定します（10進数表記）。
+                                </dd>
+
+                                <dt class="head"><a name="head_wavpanzz">
+	#WAVPANzz: &lt再生位置&gt;
+	</a></dt>
+                                <dd class="head">
+                                    <a href="#head_panzz"><tt>#PANzz:</tt></a> と同等です。<br> GDAC2 で誤動作する可能性がありますので、<a href="#head_panzz"><tt>#PANzz:</tt></a> の使用をお勧めします。
+                                </dd>
+
+                                <dt class="head"><a name="head_bmpzz">
+	#BMPzz: &lt画像ファイル名&gt;
+	</a></dt>
+                                <dd class="head">
+                                    <em>番号 zz に登録する画像</em>（BMP, PNG, JPEG ファイル）を指定します。<br>
+                                    <tt>'zz'</tt> には 36 進数表記で <em>01～ZZ</em> までを指定することができます。<br> このヘッダで登録した番号 <tt>zz</tt> は、BGA 関連チャンネル（<a href="#ch_04">04</a>,<a href="#ch_07">07</a>, <a href="#ch_55-59-60">55～59,60</a>, etc.）で使用されます。
+                                </dd>
+
+                                <dt class="head"><a name="head_bmptexzz">
+	#BMPTEXzz: &lt画像ファイル名&gt;
+	</a></dt>
+                                <dd class="head">
+                                    <em>番号 zz に登録する画像</em>（PNG ファイル）を指定します。<br>
+                                    <tt>'zz'</tt> には 36 進数表記で <em>01～ZZ</em> までを指定することができます。<br> このヘッダで登録した番号 <tt>zz</tt> は、BGA 関連チャンネル（<a href="#ch_04">04</a>,<a href="#ch_07">07</a>, <a href="#ch_55-59-60">55～59,60</a>, etc.）で使用されます。<br>
+                                    <br> 使い方は <a href="#head_bmpzz"><tt>#BMP:</tt></a> と同じですが、以下のような違いがあります。<br> この利点と欠点を踏まえた上で、両者を適切に使い分ける（どうしても必要な箇所のみ <tt>#BMPTEX:</tt> を使う）ことが大切です。<br>
+                                    <p>
+                                        <table class="list1" border="0" cellpadding="4" cellspacing="0" style="margin-left:0; margin-right:1em;">
+                                            <tr>
+                                                <th class="list1_subhead">　</th>
+                                                <th class="list1_subhead" style="font-size:larger"><tt>#BMP:</tt></th>
+                                                <th class="list1_subhead" style="font-size:larger"><tt>#BMPTEX:</tt></th>
+                                            </tr>
+                                            <tr>
+                                                <th class="list1_subhead">使用技術</td>
+            <td class="list1">DirectDraw<br>（サーフェイス）</td>
+            <td class="list1">Direct3D<br>（テクスチャ）</td>
+            </tr>
+            <tr>
+                <th class="list1_subhead">利点</td>
+                    <td class="list1" style="text-align:left; vertical-align:top">
+                        <ul type="square" style="margin-left: 1em">
+                            <li><em>どんな大きさの画像でもＯＫ</em>。</li>
+                            <li>ビデオメモリじゃなく普通のメモリの中に置くから、メモリが許す限り<em>たくさん作れる。</em></li>
+                            <li><em>古いPCでも高速に動く</em>ことが多い。</li>
+                        </ul>
+                    </td>
+                    <td class="list1" style="text-align:left; vertical-align:top">
+                        <ul type="square" style="margin-left: 1em">
+                            <li>アルファビットを使って<em>透明度を多段階に指定</em> (半透明) できる。</li>
+                            <li>3Dポリゴンに貼るから<em>立体的に変形</em>できる。BGAで使えるようにするかどうかは不明。</li>
+                            <li><em>拡大縮小</em>や<em>上下左右の伸び縮み</em>も可能。BGAで使えるようにするかどうかは不明。</li>
+                            <li><em>回転</em>もできる。もちろん BGAで使えるようにするかどうかは不明。</li>
+                            <li>光の表現に欠かせない<em>加算合成</em>もできる。BGAで使（以下略）</li>
+                        </ul>
+                    </td>
+            </tr>
+            <tr>
+                <th class="list1_subhead">欠点</td>
+                    <td class="list1" style="text-align:left; vertical-align:top">
+                        <ul type="square" style="margin-left: 1em">
+                            <li><em>透過度が 0％ or 100％（黒の部分）の２つしかない</em>ため、画像のふちのギザギザなどがモロ見えになる。</li>
+                            <li>拡大縮小も、回転も、加算合成も、<em>まったく何もできない</em>。</li>
+                        </ul>
+                    </td>
+                    <td class="list1" style="text-align:left; vertical-align:top">
+                        <ul type="square" style="margin-left: 1em">
+                            <li><em>大きさに制限がある</em>。最大サイズは、log/DeviceCheck.txt の MaxTextureWidth と MaxTextureHeight の値を超えられない。この数はビデオボードごとに違う。<br> → 近年の状況では、実質、<em>1024x1024が限界</em>と考えて下さい。 これを超えると、環境によってはDTXManiaやDTXVが異常終了します。 マジで。</li>
+                            <li>log/DeviceCheck.txt の <em>Pow2: が Yes になっているPC</em>では、 <em>横幅と縦幅は 「２のべき乗（2, 4, 8, 16, 32, 64, ...）」 にしなければならない</em>という制約がある。 DTXMania の BGA サイズは 278x355 だから、 この大きさの #BMPTEX 画像を表示しようとすると、実に 512x512 もの大きさのビデオメモリが必要となる。（画像サイズが
+                                278x355 しかなくても、ビデオメモリは 512x512 分だけ無駄に使われてしまう。） 近年では、残念なことに
+                                <em>ほぼすべてのビデオボードで Pow2 が Yes </em>という状況にある。</li>
+                            <li>log/DeviceCheck.txt で <em>SquareOnly: が Yes なPC</em>では、<em>縦と横のサイズを同じ（正方形）にしなければならない</em>。 （例: 16x256 の画像でも、256x256 分のビデオメモリを消費する。）古いPCでこれが多いから注意が必要。</li>
+                            <li>ビデオメモリの中に置くから、<em>ビデオメモリからあふれ出たテクスチャは表示されない</em>。 いつあふれるのかもビデオボードごとによって異なり、とりわけ
+                                <em>ビデオメモリが少ない環境で頻発</em>する。</li>
+                            <li>3D機能が弱い古めのPCでは、<em>処理落ちどころか表示されない</em>こともある。</li>
+                            <li>log/DeviceCheck.txt で <em>Alpha: が No になっているPC</em>では、<em>アルファが使えない</em>。 とりわけ 98～Me 世代のマシンで注意が必要。</li>
+                        </ul>
+                    </td>
+            </tr>
+            </table>
+            </p>
+            </dd><dt class="head"><a name="head_bgazz">
+	#BGAzz: &lt;BMP番号&gt; &lt;x1&gt; &lt;y1&gt; &lt;x2&gt; &lt;y2&gt; &lt;ox&gt; &lt;oy&gt;
+	</a></dt>
+            <dd class="head">
+                <em>番号 zz に登録する拡張 BGA 領域</em>を指定します。拡張 BGA 領域を指定すると、ある画像の一部分だけを好きな位置に表示することができます。<br>
+                <tt>'zz'</tt> には 36 進数表記で <em>01～ZZ</em> までを指定することができます。<br> このヘッダで登録した番号 <tt>zz</tt> は、BGA 関連チャンネル（<a href="#ch_04">04</a>,<a href="#ch_07">07</a>, <a href="#ch_55-59-60">55～59,60</a>, etc.）で使用されます。
+                <p>
+                    <table class="list2" border="0" cellpadding="4" cellspacing="0" style="margin-left:0; margin-right:1em">
+                        <tr>
+                            <th class="list2_subhead">BMP番号</th>
+                            <td class="list2"><a href="#head_bmpzz"><tt>#BMPzz:</tt></a> で指定されたBMP番号(01～ZZ)が入ります。必ず二桁で記述して下さい。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">x1, y1</th>
+                            <td class="list2">BGAの左上座標（BMP画像の左上隅が(0,0) ）を指定します。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">x2, y2</th>
+                            <td class="list2">BGAの右下座標（BMP画像の左上隅が(0,0) ）を指定します。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">ox, oy</th>
+                            <td class="list2">BGAの表示座標（DTXMania のBGA表示領域の左上隅が(0,0) ）を指定します。</td>
+                        </tr>
+                    </table>
+                </p><pre>
+例：
+　　#BGA01: 01 -40 -30 60 70 0 0
+　　→ #BMP01 で指定した画像の (-40,-30)-(60,70) の領域を、
+　　　 DTXManiaのBGA領域の (0,0) の位置から表示します。
+</pre>【注意】 <em>x1 あるいは y1 が負数</em>である場合は、<em>先にそれを 0 にクリッピングし、クリッピング後の領域の左上隅が (ox, oy) から表示</em>されます。（BM98方式）<br>
+                <center>
+                    <table class="imagedesc">
+                        <tr>
+                            <td><img src="images/bga_desc.jpg"></td>
+                        </tr>
+                        <tr>
+                            <td class="imagedesc">#BGA でのクリッピングと位置決め（BM98方式）</td>
+                        </tr>
+                    </table>
+                </center>
+            </dd><dt class="head"><a name="head_bgapanzz">
+	#BGAPANzz: &lt;BMP番号&gt; &lt;sw&gt; &lt;sh&gt; &lt;ew&gt; &lt;eh&gt; &lt;ssx&gt; &lt;ssy&gt; &lt;sex&gt; &lt;sey&gt; &lt;dsx&gt; &lt;dsy&gt; &lt;dex&gt; &lt;dey&gt; &lt;len&gt;
+	</a></dt>
+            <dd class="head">
+                <em>番号 zz に登録する BGA イメージパン</em>を指定します。<br> イメージパンとは、ある画像の一部分（領域）を、初期位置から終了位置まで一定の速度で移動させながら表示する機能です。 このとき、位置だけではなく領域の大きさも変更させることができます。（ただし、領域の拡大縮小機能はありません。）
+                <br>
+                <tt>'zz'</tt> には 36 進数表記で <em>01～ZZ</em> までを指定することができます。<br> このヘッダで登録した番号 <tt>zz</tt> は、BGA 関連チャンネル（<a href="#ch_04">04</a>,<a href="#ch_07">07</a>, <a href="#ch_55-59-60">55～59,60</a>, etc.）で使用されます。
+                <p>
+                    <table class="list2" border="0" cellpadding="4" cellspacing="0" style="margin-left:0; margin-right:1em">
+                        <tr>
+                            <th class="list2_subhead">BMP番号</th>
+                            <td class="list2"><a href="#head_bmpzz"><tt>#BMPzz:</tt></a> で指定されたBMP番号(01～ZZ)が入ります。必ず二桁で記述して下さい。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">sw, sh</th>
+                            <td class="list2">領域サイズ（幅、高さ）の初期値を指定します。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">ew, eh</th>
+                            <td class="list2">領域サイズ（幅、高さ）の終了値を指定します。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">ssx, ssy</th>
+                            <td class="list2">画像側の初期位置（画像の左上を(0,0)とする）を指定します。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">sex, sey</th>
+                            <td class="list2">画像側の終了位置（画像の左上を(0,0)とする）を指定します。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">dsx, dsy</th>
+                            <td class="list2">表示側の初期位置（DTXMania の BGA表示領域の左上を(0,0)とする）を指定します。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">dex, dey</th>
+                            <td class="list2">表示側の終了位置（DTXMania の BGA表示領域の左上を(0,0)とする）を指定します。</td>
+                        </tr>
+                        <tr>
+                            <th class="list2_subhead">len</th>
+                            <td class="list2">
+                                初期位置から終了位置への移動にかける合計時間をカウント単位で指定します。 小節長倍率によらず、常に１小節＝384カウントになります。 （小節長倍率 0.5 の時は、通常(1.0)時に比べ 2 倍の速さで移動します。）
+                            </td>
+                        </tr>
+                    </table>
+                </p>
+                <pre>
+例：
+　#BGAPAN01: <font color="#FF0000">01</font> <font color="#0000FF">50 50</font> <font color="#008000">100 80</font> <font color="#0000FF">0 0</font> <font color="#008000">60 200</font> <font color="#0000FF">85 60</font> <font color="#008000">55 250</font> <font color="#FF00FF">192</font>
+
+　→ #BMP01 で指定した画像について、
+
+　・初期： BMP<font color="#FF0000">01</font> の (<font color="#0000FF">0,0</font>)-(<font color="#0000FF">0+50,0+50</font>) の領域を、DTXManiaのBGA領域の
+　　　　　 (<font color="#0000FF">85,60</font>)-(<font color="#0000FF">85+50,60+50</font>) に表示します。
+
+　・終了： BMP<font color="#FF0000">01</font> の (<font color="#008000">60,200</font>)-(<font color="#008000">60+100,200+80</font>) の領域を、DTXManiaのBGA領域の
+　　　　　 (<font color="#008000">55,250</font>)-(<font color="#008000">55+100,250+80</font>) に表示します。
+　　　　　　→　初期から終了まで、各領域のサイズは線形に変化します。
+
+　・初期から終了まで、<font color="#FF00FF">192</font>カウント（２分音符）の時間をかけます。
+</pre>
+                <p align="center">
+                    <table class="imagedesc">
+                        <tr>
+                            <td><img src="images/bgapan_ex.jpg"></td>
+                        </tr>
+                        <tr>
+                            <td class="imagedesc">#BGAPAN の例</td>
+                        </tr>
+                    </table>
+                </p>
+                <p>【注意】 <em>x1 あるいは y1 が負数</em>である場合は、<em>それを 0 にクリッピングしない状態で表示位置を決定</em>します。（ DTXMania方式）</p>
+                <center>
+                    <table class="imagedesc">
+                        <tr>
+                            <td><img src="images/bgapan_desc.jpg"></td>
+                        </tr>
+                        <tr>
+                            <td class="imagedesc">#BGAPAN でのクリッピングと位置決め（DTXMania方式）</td>
+                        </tr>
+                    </table>
+                </center><dt class="head"><a name="head_avizz">
+	#AVIzz: &lt動画ファイル名&gt;
+	</a></dt>
+                <dd class="head">
+                    <em>番号 zz に登録する動画</em>（AVI ファイル）を指定します。<br>
+                    <tt>'zz'</tt> には 36 進数表記で <em>01～ZZ</em> までを指定することができます。<br> このヘッダで登録した番号 <tt>zz</tt> は、 動画関連チャンネル（<a href="#ch_54">54</a>）で使用されます。
+                </dd>
+
+                <dt class="head"><a name="head_videozz">
+	#VIDEOzz: &lt動画ファイル名&gt;
+	</a></dt>
+                <dd class="head">
+                    <a href="#head_avizz"><tt>#AVI:</tt></a> と同等です。
+                </dd>
+
+                <dt class="head"><a name="head_midinote">
+	#MIDINOTE: &ltON|OFF&gt;
+	</a></dt>
+                <dd class="head">
+                    通常、可視オブジェクトチャンネルで指定される値はWAV番号ですが、<tt>#MIDINOTE:</tt> を ON に設定すると、WAV 番号であると同時に MIDI ノートでもあるとみなされ、
+                    <em>WAV 発声と同時に MIDI OUT Ch.10 に NoteOn 信号が送信</em>されます。<br> ただし、MIDIから入力されてヒットしたオブジェクトについては WAV のみの発声となります。
+                </dd>
+
+                <dt class="head"><a name="head_random">
+	#RANDOM: &lt数値&gt;
+	</a></dt>
+                <dd class="head">
+                    1～&lt;数値&gt; までの<em>整数の乱数を生成</em>します。<br> この乱数は <a href="#head_if"><tt>#IF:</tt></a> ヘッダで使用されます。数値は 10 進数表記で１以上を指定可能です。
+                </dd>
+
+                <dt class="head"><a name="head_if">
+	#IF: &lt数値&gt; ～ #ENDIF
+	</a></dt>
+                <dd class="head">
+                    <a href="#head_random"><tt>#RANDOM:</tt></a> ヘッダで<em>生成した乱数が &lt;数値&gt; と等しい場合に、<tt>#IF～#ENDIF</tt> までのデータを有効</em>とします。<br> 乱数が &lt;数値&gt; と等しくない場合には、<tt>#IF～#ENDIF</tt> はスキップされます。<br> 最大255重までの入れ子が可能です。
+                    <br>
+                    <br> ただし、DTXMania では、効率化の関係上、一部のヘッダに対しては初回のみ #RANDOM／#IF～#ENDIF が有効になります。
+                </dd>
+
+                </dl>
+
+
+
+
+                <a name="object_desc"></a>
+                <h1>■ オブジェクト記述</h1>
+                <dl class="head">
+
+                    <dt class="head"><a name="head_object">
+	#nnncc: &lt;オブジェクトリスト&gt;
+	</a></dt>
+                    <dd class="head">
+                        小節 nnn におけるチャンネル cc の<em>演奏情報（オブジェクト配置情報）</em>をオブジェクトリストとして指定します。<br> nnn は 10 進数表記で 000～Z99<sup>※</sup> まで、cc は 16 進数表記で 01～FF までを指定可能です。<br> cc については、次の「チャンネル情報」を参照下さい。<br>
+                        <br>
+                        <span class="footnote">※ …  百の位のみ 0～9,A～Z を指定可能で、十と一の位は 0～9 まで指定可能。これにより、最大 3599 小節まで扱うことができる。</span><br>
+                    </dd>
+                </dl>
+
+
+                <h2>オブジェクトリストの書式</h2>
+                <p>
+                    オブジェクトリストは、ある１小節中のどこに何の演奏情報（オブジェクト）があるかを記述するものです。<br> 　オブジェクトは
+                    <em>２桁の 36 進数（01～ZZ）</em>で表現され、<em>並べた数だけ小節を<b>均等</b>に分割する位置に配置</em>されます。<br>
+                </p>
+
+                <pre>
+例：
+&nbsp; #WAV01: hihat.wav
+&nbsp; #WAV02: snare.wav
+&nbsp; #WAV03: bass.wav
+
+&nbsp; #00111: 0101010101010101
+&nbsp; #00112: 00020002
+&nbsp; #00113: 0300000303000000
+</pre>
+                <p>
+                    上の例は、下図のようなドラム譜面に対するオブジェクトリストです。<br> 　これについて、１行ずつ見ていきます。
+                    <br>
+                    <img src="images/drumscore_ex.jpg" style="margin:1em 2em">
+                </p>
+
+                <p>
+                    オブジェクトリストは、オブジェクトが２桁ずつ並んだものです。
+                    <pre>
+「#00111: 0101010101010101」→「#<b><font color="#FF0000">001</font><font color="#008000">11</font></b>: <b><font color="#0000FF">01 01 01 01 01 01 01 01</font></b>」
+</pre>　この行は、「<b><font color="#FF0000">001小節</font></b> に <b><font color="#008000">チャンネル11</font></b> の <b><font color="#0000FF">オブジェクト01</font></b> を 8 個<b>均等</b>に置く」という意味になります。<br> 　チャンネル
+                    <a href="#ch_11-1A">11</a> は「ハイハットのチップ配置」を指定するものですので、このオブジェクトリストにより、001 小節のハイハットレーンに #WAV01 の音（上図では hihat.wav となっている）が 8 個並ぶことになります。
+                </p>
+
+                <p>
+                    同様に、
+                    <pre>
+「#00112: 00020002」→「#<b><font color="#FF0000">001</font><font color="#008000">12</font></b>: <b><font color="#0000FF">00 02 00 02</font></b>」
+</pre>　では、チャンネル<a href="#ch_11-1A">12</a>（スネアのチップ配置）すなわちスネアレーンに、#WAV00 の音と #WAV02 の音を交互に 4 個<b>均等</b>に置くということを意味します。 　ここで、DTXMania では <em>#WAV00 は指定できない</em>ため、結果として、#WAV02 の音（snare.wav）が１個おきに置かれることになります。
+                </p>
+
+                <p>
+                    次も同様に、
+                    <pre>
+「#00113: 0300000303000000」→「#<b><font color="#FF0000">001</font><font color="#008000">13</font></b>: <b><font color="#0000FF">03 00 00 03 03 00 00 00</font></b>」
+</pre>　では、チャンネル<a href="#ch_11-1A">13</a>（バスドラムのチップ配置）すなわちバスレーンに、#WAV00 の音と #WAV03 の音を交互に 8 個<b>均等</b>に置くということを意味します。 　ここでも #WAV00 は無視され、結果として #WAV03 の音（bass.wav）が８分の１・４・５番目に置かれることになります。
+                </p>
+
+                <p>
+                    オブジェクトリスト中の任意の個所に、<em><tt>'_'</tt>（半角アンダーバー記号）</em>を使うことができます。 この記号は見やすさ向上のために導入されたもので、見やすくする以外の機能は何もありません。
+                    <pre>
+例：
+&nbsp; #00111: 01010101_01010101
+&nbsp; #00112: 0002_____0002
+&nbsp; #00113: 03000003_03000000
+</pre></p>
+                <p>
+                    １つの小節について、オブジェクトリストを複数に分けて記述することができます。<em>同じ小節・同じチャンネルについて記述された複数のオブジェクトリストは、すべて合成</em>されます。<br> 　例として、16 分連打と 12 分連打（３連符）が混在している場合を以下に示します。<br>
+                    <img src="images/drumscore_ex2.jpg" style="margin:1em 2em">
+
+                    <pre>
+例：
+&nbsp; #00112: 02020202_02020202_00000000_00000000   <font color="#0000FF">→ 前半の１６分連打の部分</font>
+&nbsp; #00112: 000000___000000___020202___020202     <font color="#0000FF">→ 後半の１２分連打の部分</font>
+&nbsp; #00113: 03_______03_______03_______03
+</pre>
+                </p>
+
+
+
+                <h2>チャンネル情報</h2>
+                <dl class="ch">
+
+                    <dt class="ch"><a name="ch_00">
+	00 [テンポの指定]
+	</a></dt>
+                    <dd class="ch">
+                        BMS で廃止になったため非対応。チャンネル<a href="#ch_03">03</a> をご使用下さい。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_01">
+	01 [バックコーラス(BGM)]
+	</a></dt>
+                    <dd class="ch">
+                        <em>その位置で自動的に再生するWAVの番号</em>を指定します。<br> チャンネル <a href="#ch_61-92">61～92</a> でもバックコーラスを鳴らすことはできますが、チャンネル01で音を鳴らす場合は、そのチャンネルで鳴っていた以前の音が停止されないで、重ねて再生されます。 （チャンネル <a href="#ch_61-92">61～92</a> で再生する場合、そのチャンネルで鳴っていた以前の音を停止した後に、新しい音を発音します。）
+                    </dd>
+
+                    <dt class="ch"><a name="ch_02">
+	02 [小節長の倍率指定(10進数／実数)]
+	</a></dt>
+                    <dd class="ch">
+                        １小節の長さを、<em>４分の４拍子を基準とした倍率で指定</em>します。<br> このとき、小節が短縮されても拍線（１拍ごとに現れる薄い白線）の間隔は変わりません。ただし、小節線（通常は４拍ごとに現れる明るい白線）の間隔は、短縮倍率に応じて変化します。 これにより、たとえば４分の３拍子などの自然な表現が可能です。
+                        <pre>
+例：
+　　#<font color="#FF0000">01902:0.75</font>
+　　#01911:010101
+　　#01912:010101010101010101
+
+上記の例の場合、<font color="#FF0000">019</font> 小節以降は４分の３拍子（４分の４拍子の<font color="#FF0000"> 0.75倍</font>）となり、
+拍線は小節線と小節線の間に３本しか現れなくなります。（拍線同士の間隔は４分の
+４拍子のときと同じ。）
+その結果、<font color="#FF0000">019</font> 小節目にハイハットが４分音符で３拍入り、スネアの３連符が３拍分入ります。
+</pre>【注意】 BMS におけるチャンネル02 では、その効果は１小節しか続かず、次の小節ではまた 1.0 倍に戻ります。しかし DTX においては、一度指定すれば、それ以降すべての小節が対象となります。<br>
+                    </dd>
+
+                    <dt class="ch"><a name="ch_03">
+	03 [再生テンポ(BPM;１分間の４分音符の数)]
+	</a></dt>
+                    <dd class="ch">
+                        その位置で <em>BPM (Bear per Minute; １分間に４分音符がいくつ現れるか）を変更</em>します。<br> 値は 16 進数(00～FF)で指定します（ 36 進数ではないので注意）。<br> また、このチャンネルで指定した値には <a href="#head_basebpm"><tt>#BASEBPM:</tt></a> で指定した値が加算されて用いられます。
+                        <pre>
+例：
+&nbsp; #BPM: 220
+&nbsp; #BASEBPM: 200
+
+&nbsp; #03103:0042
+</pre>　上記の例では、最初は BPM = 220 で演奏されているところを、31小節目の 3 拍目（真ん中）からは BPM を 266 に変更します。（ 200 + 66（16進数では42） = 266）
+                    </dd>
+
+                    <dt class="ch"><a name="ch_04">
+	04 [BGA(バックグラウンドアニメーション)]
+	</a></dt>
+                    <dd class="ch">
+                        その位置で <em>BGA 領域に表示する画像の番号</em>（<a href="#head_bmpzz"><tt>#BMP</tt></a>, <a href="#head_bmptexzz"><tt>#BMPTEX</tt></a>, <a href="#head_bgazz"><tt>#BGA</tt></a>, <a href="#head_bgapanzz"><tt>#BGAPAN</tt></a> で設定したzz ）を指定します。<br>
+                        <tt>#BMP, #BMPTEX, #BGA, #BGAPAN</tt> の間で同じ画像番号が存在する場合には、<tt>#BGAPAN → #BGA → #BMPTEX → #BMP</tt> の順に優先されます。<br> DTXMania では、BGA 領域のサイズは <em>278x355</em> ドットです。これより小さいサイズの画像は、左右は中央揃え、上下は上詰めで表示されます。はみ出した領域はカットされます。一度表示された画像は次の指定がない限り表示されたままになります。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_05">
+	05 [Extend Object]
+	</a></dt>
+                    <dd class="ch">
+                        非対応。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_06">
+	06 [MISSアニメ]
+	</a></dt>
+                    <dd class="ch">
+                        非対応。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_07">
+	07 [レイヤBGA]
+	</a></dt>
+                    <dd class="ch">
+                        その位置で <em>BGA 領域に表示するレイヤー画像の番号</em>（<a href="#head_bmpzz"><tt>#BMP</tt></a>, <a href="#head_bmptexzz"><tt>#BMPTEX</tt></a>, <a href="#head_bgazz"><tt>#BGA</tt></a>, <a href="#head_bgapanzz"><tt>#BGAPAN</tt></a> で設定したzz ）を指定します。<br>
+                        <tt>#BMP, #BMPTEX, #BGA, #BGAPAN</tt> の間で同じ画像番号が存在する場合には、<tt>#BGAPAN → #BGA → #BMPTEX → #BMP</tt> の順に優先されます。<br> DTXMania では、BGA 領域のサイズは <em>278x355</em> ドットです。これより小さいサイズの画像は、左右は中央揃え、上下は上詰めで表示されます。はみ出した領域はカットされます。一度表示された画像は次の指定がない限り表示されたままになります。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_08">
+	08 [拡張再生テンポ(BPM;１分間の４分音符の数)]
+	</a></dt>
+                    <dd class="ch">
+                        その位置で <em>BPM を変更</em>しますが、チャンネル<a href="#ch_03">03</a> のように BPM を 16 進数表記で直接指定するのではなく、<a href="#head_bpmzz"><tt>#BPMzz:</tt></a> で設定した番号（zz:00～ZZ）を指定します。整数 BPM の場合にはチャンネル<a href="#ch_03">03</a> を、実数 BPM の場合にはこのチャンネル08 を使うと良いでしょう。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_09-10">
+	09～10 [BMS予約チャンネル]
+	</a></dt>
+                    <dd class="ch">
+                    </dd>
+
+                    <dt class="ch"><a name="ch_11-1A">
+	11～1A [チップ配置(ドラム)]
+	</a></dt>
+                    <dd class="ch">
+                        その位置に配置する<em>ドラムチップの WAV 番号</em>（00～ZZ; <a href="#head_wavzz"><tt>#WAVzz:</tt></a>で設定したやつのzzの部分）を指定します。<br> チャンネルとチップは次のように対応します。
+                        <pre>
+11 = HiHatClose
+12 = Snare
+13 = BassDrum
+14 = HighTom
+15 = LowTom
+16 = Cymbal
+17 = FloorTom
+18 = HiHatOpen
+19 = RideCymbal
+1A = LeftCymbal
+</pre>【注意】 シンバルとフロアタムの順番にご注意下さい。またBM98では、16=スクラッチキー、17=フリースクラッチ、18,19=予約チャンネル となっています。）
+                    </dd>
+
+                    <dt class="ch"><a name="ch_20-27">
+	20～27 [チップ配置(ギター)]
+	</a></dt>
+                    <dd class="ch">
+                        その位置に配置する<em>ギターチップの WAV 番号</em>（00～ZZ; <a href="#head_wavzz"><tt>#WAVzz:</tt></a> で設定したやつのzzの部分）を指定します。<br> チャンネルとチップは次のように対応します。
+                        <pre>
+20 = -OPEN- ; GDA,G2D形式におけるG0チャンネル
+21 = ｘｘＢ ; 　　　　〃　　　　 G1　　〃
+22 = ｘＧｘ ; 　　　　〃　　　　 G2　　〃
+23 = ｘＧＢ ; 　　　　〃　　　　 G3　　〃
+24 = Ｒｘｘ ; 　　　　〃　　　　 G4　　〃
+25 = ＲｘＢ ; 　　　　〃　　　　 G5　　〃
+26 = ＲＧｘ ; 　　　　〃　　　　 G6　　〃
+27 = ＲＧＢ ; 　　　　〃　　　　 G7　　〃
+</pre>
+                    </dd>
+
+                    <dt class="ch"><a name="ch_28">
+	28 [ウェイリング(ギター)]
+	</a></dt>
+                    <dd class="ch">
+                        その位置に<em>ウェイリング (WAILING BONUS) チップ</em>を置きます。オブジェクト番号は 00 以外なら何でも OK です。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_29">
+	29 [フロースピード(ギター)]
+	</a></dt>
+                    <dd class="ch">
+                        非対応。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_30">
+	30 [フロースピード(ドラム)]
+	</a></dt>
+                    <dd class="ch">
+                        非対応。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_31_3A">
+	31～3A [不可視チップ配置(ドラム)]
+	</a></dt>
+                    <dd class="ch">
+                        その位置に、<em>譜面上には現れず再生もされない（ゲーム自体には全く関係しない）チップ</em>を配置します。<br> DTXMania では、空うち（チップの無いところでのヒット）の際には一番近いチップの音を発声するようになっているため、意図的に「一番近いチップ」を変更したい場合や、 曲中にタムは出てこないけどタムを叩いた（空うちした）時には何か音を発声したい場合などに有用です。
+                        <br> 31～3A は、それぞれチャンネル <a href="#ch_11-1A">11～1A</a> に対応する不可視オブジェクトです。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_40">
+	40 [BMS予約チャンネル]
+	</a></dt>
+                    <dd class="ch">
+                    </dd>
+
+                    <dt class="ch"><a name="ch_41-46">
+	41～46 [２プレイヤー側不可視オブジェクトの配置]
+	</a></dt>
+                    <dd class="ch">
+                        非対応。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_47-49">
+	47～49 [BMS予約チャンネル]
+	</a></dt>
+                    <dd class="ch">
+                    </dd>
+
+                    <dt class="ch"><a name="ch_50">
+	50 [小節線]
+	</a></dt>
+                    <dd class="ch">
+                        その位置に<em>小節線</em>を置きます。DTXMania内部処理用ですが、このチャンネルを使って明示的に小節線を置くこともできます。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_51">
+	51 [拍線]
+	</a></dt>
+                    <dd class="ch">
+                        その位置に<em>拍線</em>を置きます。DTXMania内部処理用ですが、このチャンネルを使って明示的に拍線を置くこともできます。<br> ドラム譜面で利用可能です。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_52">
+	52 [MIDIコーラス]
+	</a></dt>
+                    <dd class="ch">
+                        その位置で<em>MIDIチャンネル10にNoteOnを送信</em>します。<a href="#head_midinote">#MIDINOTE:</a> の値に関わらず、送信されます。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_53">
+	53 [フィルイン]
+	</a></dt>
+                    <dd class="ch">
+                        <em>フィルイン</em>の開始位置、終了位置を指定します。<br> 01 でフィルイン開始、02 でフィルイン終了となります。フィルイン終了時にコンボが 1 以上ある場合は、歓声が鳴ります。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_54">
+	54 [動画再生]
+	</a></dt>
+                    <dd class="ch">
+                        その位置で <em>BGA 領域に表示する動画の番号</em>（ <a href="#head_avizz">#AVI</a> または <a href="#head_videozz">#VIDEO</a> で設定した zz ）を指定します。<br> DTXMania では、BGA 領域のサイズは <em>278x355</em> ドットです。その前に再生されている動画はキャンセルされます。また、動画より BGA と レイヤBGA が上位に描画されます。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_55-59-60">
+	55～59,60 [レイヤBGA]
+	</a></dt>
+                    <dd class="ch">
+                        <em>レイヤ BGA</em> を提供します。チャンネル <a href="#ch_07">07</a> と同等の機能です。<br> ただし、チャンネル番号の大きいものほど上位に描かれます。（下位← 04, 07, 55, 56, 57, 58, 59, 60 →上位）
+                    </dd>
+
+                    <dt class="ch"><a name="ch_61-69-70-79-80-89-90-92">
+	61～69, 70～79, 80～89, 90～92 [BGM]
+	</a></dt>
+                    <dd class="ch">
+                        <em>その位置で自動的に再生する WAV の番号</em>を指定します。<br> ただし、チャンネル <a href="#ch_01">01</a> とは違い、そのチャンネルで鳴っていた以前の音が停止されてから再生されます。 GDA &amp; G2D 形式における 01～20 チャンネル（BGMパート）がここに展開されます。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_A0-A7">
+	A0～A7 [チップ配置（ベース）]
+	</a></dt>
+                    <dd class="ch">
+                        その位置に配置する<em>ベースチップの WAV 番号</em>（00～ZZ; <a href="#head_wavzz"><tt>#WAV</tt></a> で設定した zz ）を指定します。<br> チャンネルとチップは次のように対応します。
+                        <pre>
+20 = -OPEN- ; G2D形式におけるB0チャンネル
+21 = ｘｘＢ ; 　　　〃　　　 B1　　〃
+22 = ｘＧｘ ; 　　　〃　　　 B2　　〃
+23 = ｘＧＢ ; 　　　〃　　　 B3　　〃
+24 = Ｒｘｘ ; 　　　〃　　　 B4　　〃
+25 = ＲｘＢ ; 　　　〃　　　 B5　　〃
+26 = ＲＧｘ ; 　　　〃　　　 B6　　〃
+27 = ＲＧＢ ; 　　　〃　　　 B7　　〃
+</pre>
+                    </dd>
+
+                    <dt class="ch"><a name="ch_A8">
+	A8 [ウェイリング(ベース)]
+	</a></dt>
+                    <dd class="ch">
+                        その位置に<em>ウェイリング (WAILING BONUS) チップ</em>を置きます。オブジェクト番号は 00 以外なら何でも OK です。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_B1-B9-BC">
+	B1～B9, BC [空打ち（ドラム）]
+	</a></dt>
+                    <dd class="ch">
+                        <em>その位置に配置する空打ちドラムチップ用の WAV 番号</em>（ <a href="#head_wavzz">#WAV</a> で設定した zz ）を指定します。<br> その位置以降の空打ち音（チップの無いところでパッドを叩いたときの音）は、指定した WAV に変更されます。<br> 曲データ中に空打ちの指定がひとつもない場合は、そのレーンの前後で最も近いチップの WAV が使用されます。また、小節 0 での空打ち音は、最も小節 0 に近い空打ち指定WAVが適用されます。チャンネルとチップは次のように対応します。
+                        <pre>
+B1 = HiHatClose
+B2 = Snare
+B3 = BassDrum
+B4 = HighTom
+B5 = LowTom
+B6 = Cymbal
+B7 = FloorTom
+B8 = HiHatOpen
+B9 = RideCymbal
+BC = LeftCymbal  ("BA"ではないので注意)
+</pre>
+                    </dd>
+
+                    <dt class="ch"><a name="ch_BA">
+	BA [空打ち（ギター）]
+	</a></dt>
+                    <dd class="ch">
+                        <em>その位置に配置する空打ちギターチップ用の WAV 番号</em>（ <a href="#head_wavzz">#WAV</a> で設定した zz ）を指定します。<br> その位置以降の空打ち音は、指定したWAVに変更されます。
+                        <br> 曲データ中に空打ちの指定がひとつもない場合は、その前後で最も近いチップのWAVが使用されます。また、小節 0 での空打ち音は、最も小節 0 に近い空打ち指定 WAV が適用されます。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_BB">
+	BB [空打ち（ベース）]
+	</a></dt>
+                    <dd class="ch">
+                        <em>その位置に配置する空打ちベースチップ用の WAV 番号</em>（ <a href="#head_wavzz">#WAV</a> で設定した zz ）を指定します。<br> その位置以降の空打ち音は、指定したWAVに変更されます。
+                        <br> 曲データ中に空打ちの指定がひとつもない場合は、その前後で最も近いチップのWAVが使用されます。また、小節 0 での空打ち音は、最も小節 0 に近い空打ち指定 WAV が適用されます。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_C4-C7-D5-D9-E0">
+	C4, C7, D5～D9, E0 [BGA画像の入れ替え]
+	</a></dt>
+                    <dd class="ch">
+                        チャンネル <a href="#ch_04">04</a>, <a href="#ch_07">07</a>, <a href="#ch_55-59-60">55～59,60</a> に対応した BGA の現在表示中の画像を、これらのチャンネルで指定した番号に入れ替えます。入れ替えの際、スクロールなどの情報は初期化せず継続します。<br> これにより、たとえば <a href="#head_bgapanzz">#BGAPAN</a> で画像をスクロールさせている最中に、表示する画像だけ置きかえることが可能になります。
+                        <br> チャンネル C4, C7, D5～D9, E0 は、それぞれチャンネル 04, 07, 55～59, 60 の画像を入れ替えます。
+                        <pre>
+例１：
+　　#BMP01: 笑顔600x355.bmp
+　　#BMP02: 泣顔600x355.bmp
+　　#BGAPAN10: 01 278 255 278 355 0 0 322 0 0 0 0 0 384
+　　#00104: 10
+
+　　通常の従来の #BGAPAN によるスクロールの例。
+　　第001小節の頭から終わりまで(384ct)、笑顔600x355.bmp がスクロールする。
+
+例２：
+　　例１に、以下を加える。
+　　#001C4: 0201
+
+　　やはり第001小節の頭から終わりまで 384 ct かけてスクロールするが、
+　　前半２拍は 泣顔600x355.bmp が、後半２拍は 笑顔600x355.bmp が表示される。
+　　ch.04 で開始したスコープの現状（今どこまでスクロールした？とか）はそのままで、
+　　画像だけすっぽり入れ替えられることになります。
+</pre>
+                    </dd>
+
+                    <dt class="ch"><a name="ch_C1">
+	C1 [拍線シフト]
+	</a></dt>
+                    <dd class="ch">
+                        このチャンネルに 02 を置くと、<em>その小節内に限り、拍線がそこから表示開始</em>されます。（その位置まで拍線は表示されない。）<br> 拍線の間隔は固定ではなく、小節長倍率により変化します。 なお、01 を置いても元に戻ったりしません。
+                    </dd>
+
+                    <dt class="ch"><a name="ch_C2">
+	C2 [拍線・小節線表示指定]
+	</a></dt>
+                    <dd class="ch">
+                        このチャンネルに 02 を置くと、その位置から、<em>拍線ならびに小節線をすべて非表示</em>にします。 01 を置くと、その位置から<em>表示が再開</em>されます。<br> ただし、チャンネル <a href="#ch_50">50</a>, <a href="#ch_51">51</a> を使って製作者が明示的に配置した拍線・小節線は、この影響を受けず<sup>※</sup>、常にその位置で表示されます。<br>
+                        <br>
+                        <span class="footnote">※ … 正確には、チャンネル 50 や 51 で 'ZZ' を置いた場合に限り、この影響を受けます。影響を受けない線を置くには、'01'～'ZY' をご使用ください。</span>
+                    </dd>
+
+                </dl>
+
+                <!-- 戻る -->
+                <p>
+                    <a href="../index.html">戻る</a>
+                </p>
+
+                </div>
+
+                <!-- フッタ -->
+                <img src="../images/footer.jpg">
+
+                <!-- ページ枠ここまで -->
+                </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>

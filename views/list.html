@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Drum选择曲目</title>
+    <link href="../public/stylesheets/main.css" rel="stylesheet" type="text/css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../public/stylesheets/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="../public/stylesheets/ionicons.min.css">
+</head>
+
+<body>
+    <header>
+        <h2>Drum V0.1</h2>
+        <a href="#" class="stuts">Fork me on <span>GitHub</span></a>
+    </header>
+
+    <div class="container">
+        <!--
+        <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+        <span class="sr-only">Loading...</span>-->
+        <div style="width:100%;height:100%;">
+            <div class="left_list">
+                <div class="list_head">
+                    <span>请选择游戏歌曲</span>
+                    <span class="head_tips"><i class="icon ion-arrow-up-a"></i>上</span>
+                    <span class="head_tips"><i class="icon ion-arrow-down-a"></i>下</span>
+                    <span class="head_tips">Esc返回</span>
+                    <span class="head_tips">Enter确认</span>
+                </div>
+                <div class="list_body">
+                    <div id="loading" class="loading">
+                        <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>Loading...
+                    </div>
+                    <div id="roulette" class="roulette">
+
+                    </div>
+                </div>
+                <div class="list_foot">
+                    <!--切换难度<br> 难度<br> 最佳成绩-->
+                    <div class="switch_diff_bar">
+                        <span class="check_diff">&nbsp;Basic&nbsp;</span>
+                        <span>&nbsp;Advanced&nbsp;</span>
+                        <span>&nbsp;Extreme&nbsp;</span>
+                    </div>
+                    <div class="diff_and_result">
+                        <div class="current_diff">
+                            <span>游戏难度</span><br>
+                            <span id="current_diff_value" class="current_diff_value">--</span>
+                        </div>
+                        <div class="best_skill">
+                            <span>最佳得分</span><br>
+                            <span id="best_skill_value" class="best_skill_value">--</span>
+                        </div>
+                        <div class="best_rank">
+                            <span>最佳段位</span><br>
+                            <span id="best_rank_value" class="best_rank_value">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="middle_interval"></div>
+            <div class="right_detail">
+                <div class="pic_detail">
+                    <div class="pic_title">
+                        <span>Drum H5 Ver.</span>
+                    </div>
+                    <div id="pic_img" class="pic_img">
+                        <!--<img src="../public/sound/baby one more time 布兰妮/pic1.jpg" alt="baby one more time">-->
+                    </div>
+                </div>
+                <div class="text_detail">
+                    <div class="info_title">
+                        <span>Information</span>
+                    </div>
+                    <div class="info_records">
+                        <span>0002.07/24/11 Cleared</span><br>
+                        <span>0001.07/24/11 Play Canceled</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <!-- To the right -->
+        <div class="pull-right">
+            Anything you want
+        </div>
+        <!-- Default to the left -->
+        <strong>Copyright &copy; 2017 <a href="#">Company</a>.</strong> All rights reserved.
+    </footer>
+
+    <div class="side">
+        <ul>
+            <li id="back_focus" style="display: list-item;">
+                <a href="javascript:goFocus();" class="sidefocus"><i class="fa fa-dot-circle-o fa-3x" style="color:#fff;margin-left: 9px;margin-top:6px;"></i></a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- jQuery 1.12.4 -->
+    <script src="../public/javascripts/jquery/jquery-1.12.4.min.js"></script>
+    <script src="../public/javascripts/config.js"></script>
+    <script src="../public/javascripts/DoublyCircularLinkedList.js"></script>
+    <script type="text/javascript">
+        // 全局变量
+        var list = null; // 歌曲列表-数组
+        var clist = null; // 歌曲列表-链表
+        var center = 0; // 当前选择的歌曲序号(即中心位置,为数组序号)
+        var lastCheck = null; // 最后一次选择的歌曲（防止快速切换时ajax异步引起的错误）
+        var preview = new Audio(); // 当前选择的曲目试听
+
+        $(function() {
+            $(window).scroll(function() {
+                if ($(window).scrollTop() !== 58) {
+                    $("#back_focus").fadeIn(500);
+                } else {
+                    $("#back_focus").fadeOut(500);
+                }
+            });
+            goFocus();
+            initList();
+        });
+
+        function goFocus() {
+            $('html,body').animate({
+                'scrollTop': 58
+            }, 300);
+        }
+
+        // 屏蔽浏览器up和down按钮事件
+        $(window).keydown(function(event) { // keyboard-down
+            switch (event.keyCode) {
+                case 38: //up
+                    upRotation();
+                    return false;
+                case 40: //down
+                    downRotation();
+                    return false;
+                case 13: //Enter
+                    checkToPlay(lastCheck);
+                    return false;
+                case 27: //Esc
+                    console.log("Esc");
+                    break;
+                default:
+                    //console.log(event.keyCode);
+            }
+        });
+
+        function initList() {
+            // 发送ajax,请求后台返回list
+            $.ajax({
+                url: "list.do",
+                type: "POST",
+                dataType: "json",
+                data: {},
+                success: function(data) {
+                    if (!data) {
+                        alert("读取歌曲目录失败！请重试。");
+                        return;
+                    }
+                    $("#loading").hide();
+                    list = data;
+                    list.sort(function(a, b) { // 中文排序（按照拼音）
+                        return a["name"].localeCompare(b["name"]);
+                    });
+                    clist = new DoublyCircularLinkedList();
+                    clist.initFromArray(list);
+                    renderList();
+                }
+            });
+        }
+
+        function renderList() {
+            var html = [];
+            var checkPath = null;
+            preview.pause();
+            var clip = clist.listClip(center, 4); // 以第一个为中心向上向下取4个元素,共9个元素
+            clip.forEach(function(e, index) {
+                if (e) {
+                    if (index === 4) {
+                        checkPath = e.dtxs[0].file;
+                        lastCheck = e.dtxs[0].file;
+                        html.push('\
+                        <div id="check_line" class="check_line">\
+                            <div class="top_line_box">\
+                                <span>' + e.name + '</span>\
+                            </div>\
+                            <div id="bottom_line_box" class="bottom_line_box">\
+                                <span></span>\
+                            </div>\
+                        </div>');
+                    } else {
+                        html.push('\
+                        <div class="line">\
+                            <div class="line_box">\
+                                <span>' + e.name + '</span>\
+                            </div>\
+                        </div>');
+                    }
+                } else {
+                    if (index === 4) {
+                        html.push('\
+                        <div id="check_line" class="check_line">\
+                            <div class="top_line_box">\
+                                <span>-----</span>\
+                            </div>\
+                            <div id="bottom_line_box" class="bottom_line_box">\
+                                <span>-----</span>\
+                            </div>\
+                        </div>');
+                    } else {
+                        html.push('\
+                        <div class="line">\
+                            <div class="line_box">\
+                                <span>-----</span>\
+                            </div>\
+                        </div>');
+                    }
+                }
+            });
+            $("#roulette").html(html.join(""));
+            $("#check_line").prop("path", checkPath);
+            initDetail();
+        }
+
+        function initDetail() {
+            // 发送ajax,请求文件信息
+            $.ajax({
+                url: "detail.do",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    path: $("#check_line").prop("path")
+                },
+                success: function(data) {
+                    if (!data) {
+                        alert("读取歌曲内容失败！请重试。");
+                        return;
+                    }
+                    renderDetail(data);
+                }
+            });
+        }
+
+        function renderDetail(data) {
+            if (data.path !== lastCheck) {
+                return;
+            }
+            console.log(data);
+            // bpm:"92.98"
+            // dlevel:"50"
+            // panel:"baby one more time  如来神掌 20120113"
+            // path:"./public/sound/baby one more time 布兰妮/baby.dtx"
+            // preimage:"./public/sound/baby one more time 布兰妮/pic1.jpg"
+            // preview:"./public/sound/baby one more time 布兰妮/pre.mp3"
+            // stagefile:"./public/sound/baby one more time 布兰妮/pic2.jpg"
+            // title:"baby one more time"
+            // artist: "#ARTIST: Beyond"
+            // comment: "#COMMENT: from album 命運派對 / DTX by Maoke Jackson"
+
+            // 左上-comment/title/artist
+            if (data.comment) {
+                $("#bottom_line_box").html("<span>" + data.comment + "</span>");
+            } else {
+                $("#bottom_line_box").html("<span>" + (data.title ? data.title : "") + " " + (data.artist ? data.artist : "") + "</span>");
+            }
+            // 右上
+            if (data.preimage) {
+                $("#pic_img").html("<img width='260px' src=\"" + data.preimage + "\" " + (data.title ? "alt='" + data.title + "'" : "") + "/>");
+            }
+            // 左下-dlevel/难度选择/bestSkill/bestRank
+            if (data.dlevel) {
+                $("#current_diff_value").text(data.dlevel);
+            }
+            // 右下-游玩记录
+
+            // 声音加载
+            if (data.preview) {
+                preview.src = data.preview;
+                preview.currentTime = 0;
+                preview.loop = true;
+                preview.volume = 0.9;
+                preview.play(); // 浏览器对音频格式支持不同可能报错：ERROR:Uncaught (in promise) DOMException: The element has no supported sources.
+            }
+
+        }
+
+        function upRotation() {
+            center--;
+            if (center < 0) {
+                center += list.length;
+            }
+            renderList();
+        }
+
+        function downRotation() {
+            center++;
+            if (center > (list.length - 1)) {
+                center -= list.length;
+            }
+            renderList();
+        }
+
+        function checkToPlay(data) {
+            // 页面直接跳转
+            window.location.href = "play.do?dtx=" + data;
+        }
+    </script>
+</body>
+
+</html>

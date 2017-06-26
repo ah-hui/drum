@@ -1,15 +1,16 @@
 /**
- * 电子鼓软件V0.1：
- *  -支持5鼓3镲，共*种音色；
+ * Drum H5 Ver. 版本1.0.0：
+ *  -支持5鼓3镲；
  *  -支持最细十六分音符，更细音符将自动算法转换；可以读取更细音符的dtx，算法完成不完全转换（(音符位置/总长度)*16注意查重）
  *  -
  * 注：1.如果连接电子鼓请自行解决按键映射问题
  */
 
 // inner variables
+var dtx, dtxStack;
 var bgCanvas, bgCtx, fgCanvas, fgCtx, efCanvas, efCtx;
 var gameStatus;
-var gameStart, gameTimer, anime, elapsed = min = sec = 0;
+var gameStart, gameTimer, anime, elapsed = cell = min = sec = 0;
 var points = perfectHits = goodHits = missHits = 0;
 
 var CANVAS_WIDTH, CANVAS_HEIGHT, FPS = 60,
@@ -347,6 +348,48 @@ function check() {
 
 //init
 $(function() {
+
+    // 读取dtx文件
+    readDtx(function() {
+        // 加载图片
+
+        // 加载声音
+
+        // 初始化游戏
+        // var crotchet = 60000 / bpm; // 四分音符
+        // var quaver = crotchet / 2; // 八分音符
+        // var semiquaver = quaver / 2; // 十六分音符
+        // var duration = null; // 时值
+        initGame();
+    });
+});
+
+function readDtx(callback) {
+    // 发送ajax,请求dtx文件信息
+    $.ajax({
+        url: "parseDtx.do",
+        type: "POST",
+        dataType: "json",
+        data: {
+            path: $("#dtx").text()
+        },
+        success: function(data) {
+            if (!data) {
+                alert("读取歌曲内容(DTX)失败！请重试。");
+                return;
+            }
+            console.log("==========dtx==========");
+            console.log(data);
+            console.log("==========dtx==========");
+            dtx = data;
+            dtxStack = new Stack();
+            dtxStack.initFromArray(dtx.notes.reverse());
+            if (typeof callback === "function") { callback(); }
+        }
+    });
+}
+
+function initGame() {
     // 背景层 - 不重绘
     bgCanvas = $("#bg")[0];
     bgCtx = bgCanvas.getContext("2d");
@@ -360,39 +403,39 @@ $(function() {
     CANVAS_WIDTH = bgCanvas.width;
     CANVAS_HEIGHT = bgCanvas.height;
 
-    console.log("width:" + CANVAS_WIDTH + "-height:" + CANVAS_HEIGHT);
+    // console.log("width:" + CANVAS_WIDTH + "-height:" + CANVAS_HEIGHT);
 
     // 图片加载和对应对象声明
     var bkImg = new Image();
-    bkImg.src = 'images/play/background.jpg';
+    bkImg.src = 'public/images/play/background.jpg';
     background = new Background(0, 0, 695, 600, 0, 1, bkImg);
     var crashImg = new Image();
-    crashImg.src = 'images/play/crash.png';
+    crashImg.src = 'public/images/play/crash.png';
     crash = new Instrument(1, 10, 520, 80, 60, crashImg);
     var hi_hatImg = new Image();
-    hi_hatImg.src = 'images/play/hi_hat.png';
+    hi_hatImg.src = 'public/images/play/hi_hat.png';
     hi_hat = new Instrument(3, 15 + 1 * LANE_WIDTH, 520, 80, 60, hi_hatImg);
     var snareImg = new Image();
-    snareImg.src = 'images/play/snare.png';
+    snareImg.src = 'public/images/play/snare.png';
     snare = new Instrument(5, 20 + 2 * LANE_WIDTH, 520, 80, 60, snareImg);
     var tom1Img = new Image();
-    tom1Img.src = 'images/play/tom.png';
+    tom1Img.src = 'public/images/play/tom.png';
     tom1 = new Instrument(6, 25 + 3 * LANE_WIDTH, 520, 80, 60, tom1Img);
     var tom2Img = new Image();
-    tom2Img.src = 'images/play/tom.png';
+    tom2Img.src = 'public/images/play/tom.png';
     tom2 = new Instrument(7, 30 + 4 * LANE_WIDTH, 520, 80, 60, tom2Img);
     var tom3Img = new Image();
-    tom3Img.src = 'images/play/tom.png';
+    tom3Img.src = 'public/images/play/tom.png';
     tom3 = new Instrument(8, 35 + 5 * LANE_WIDTH, 520, 80, 60, tom3Img);
     var kickImg = new Image();
-    kickImg.src = 'images/play/kick.png';
+    kickImg.src = 'public/images/play/kick.png';
     kick = new Instrument(9, 40 + 6 * LANE_WIDTH, 520, 80, 60, kickImg);
     var rideImg = new Image();
-    rideImg.src = 'images/play/ride.png';
+    rideImg.src = 'public/images/play/ride.png';
     ride = new Instrument(2, 45 + 7 * LANE_WIDTH, 520, 80, 60, rideImg);
 
     // 声音加载
-    sounds[0] = new Audio('media/snd1.wav');
+    sounds[0] = new Audio();
     sounds[0].volume = 0.9;
 
     testNote = new Note(10, 20, 80, 20, 0, 1, null);
@@ -402,6 +445,7 @@ $(function() {
     gameStatus = false; // 目前只用来做不重绘部分的渲染
     gameStart = setInterval(drawScene, 1000 / FPS); // loop drawScene
     gameTimer = setInterval(countTimer, 1000); // inner game timer
+    waterfall = setInterval(notePapa, 60000 / dtx.bpm / 4); // 音乐瀑布-音符产生者
     anime = setInterval(drawAnime, 1000 / FPS); // ef anime loop
 
     // 事件监听
@@ -444,9 +488,13 @@ $(function() {
                 break;
         }
     });
-
-});
+}
 
 function countTimer() {
     elapsed++;
+}
+
+function notePapa() {
+    cell++;
+
 }
