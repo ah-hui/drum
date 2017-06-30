@@ -1,0 +1,70 @@
+<html>
+
+<body>
+    <canvas id="canvas" width="600" height="400"> 
+   <p>Your browser does not support the canvas element</p> 
+  </canvas>
+</body>
+<script>
+    const FPS = 30;
+    const SECONDS_BETWEEN_FRAMES = 1 / FPS;
+
+    var bg0 = new Image();
+    var bg1 = new Image();
+    var bg2 = new Image();
+
+    var x = 0;
+    const RATE = 50 * SECONDS_BETWEEN_FRAMES;
+    const WIDTH = 600;
+    const HEIGHT = 320;
+
+    var canvas;
+    var canvasBuffer;
+    var context;
+    var contextBuffer;
+
+    window.onload = init;
+
+    function init() {
+        bg0.src = "b0.png";
+        bg1.src = "b1.png";
+        bg2.src = "b2.png";
+
+        canvas = document.getElementById("canvas");
+        canvasBuffer = document.createElement("canvas");
+        canvasBuffer.width = canvas.width;
+        canvasBuffer.height = canvas.height;
+        context = canvas.getContext("2d");
+        contextBuffer = canvasBuffer.getContext("2d");
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        contextBuffer.clearRect(0, 0, canvasBuffer.width, canvasBuffer.height);
+
+        setInterval(animation, SECONDS_BETWEEN_FRAMES);
+    }
+
+    function animation() {
+        x += RATE;
+
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        contextBuffer.clearRect(0, 0, canvasBuffer.width, canvasBuffer.height);
+
+        drawBuffer(bg0, 0, 0, 0.5);
+        drawBuffer(bg1, 0, 100, 0.75);
+        drawBuffer(bg2, 0, 100, 1);
+        context.drawImage(canvasBuffer, 0, 0);
+    }
+
+    function drawBuffer(image, dx, dy, factor) {
+        var left = (x * factor) % image.width;
+        if (left + WIDTH >= image.width) {
+            var d0 = image.width - left;
+            var d1 = WIDTH - d0;
+            contextBuffer.drawImage(image, left, 0, d0, HEIGHT, dx, dy, d0, HEIGHT);
+            contextBuffer.drawImage(image, 0, 0, d1, HEIGHT, dx + d0, dy, d1, HEIGHT);
+        } else {
+            contextBuffer.drawImage(image, left, 0, WIDTH, HEIGHT, dx, dy, WIDTH, HEIGHT);
+        }
+    }
+</script>
+
+</html>

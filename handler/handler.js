@@ -229,6 +229,10 @@ function getDtxBody(data, detail) {
         if (e.match(/^#\d{3}[0-9A-Ca-c]{2}:/)) { // 匹配正文开头
             var bar = e.substring(1, 4); // 小节
             var lane = e.substring(4, 6); // 通道
+            var DTX_LANE = ["1A", "1B", "1C", "11", "12", "13", "14", "15", "16", "17", "18", "19", "01"]; // 10个通道,2个有副音色,外加bpm的01通道,共解析13种指定
+            if (!DTX_LANE.contains(lane)) {
+                return; // 不解析未指定通道的内容(forEach跳出本次循环不支持continue)
+            }
             var beats = e.replace("#" + bar + lane + ":", "").trim();
             var beatsArr = parseDtxLine(detail.bpm, bar, lane, beats);
             beatsArr.forEach(function(e) { // 合并本行的音符到总集合
@@ -236,11 +240,11 @@ function getDtxBody(data, detail) {
                 result.notes.forEach(function(note) {
                     if (note.pos === e.pos) {
                         f = true;
-                        note.beats.push({ tone: e.tone, type: e.type });
+                        note.beats.push({ tone: e.tone, type: e.type, lane: e.lane });
                     }
                 });
                 if (!f) {
-                    result.notes.push({ pos: e.pos, beats: [{ tone: e.tone, type: e.type }] });
+                    result.notes.push({ pos: e.pos, beats: [{ tone: e.tone, type: e.type, lane: e.lane }] });
                 }
             });
             var flag = false;
@@ -286,7 +290,7 @@ function parseDtxLine(bpm, bar, lane, beats) {
             pos = Math.ceil(16 * (i - 1) / beatsAmt) + 1 + barcode * 16;
             console.log("DTX-Line-Warning[除不尽上取整]: " + bar + lane + ": " + beats + "[" + (Math.ceil(16 * (i - 1) / beatsAmt) + 1) + "]");
         }
-        beatsArr.push({ pos: pos, tone: beat, type: beatsAmt });
+        beatsArr.push({ pos: pos, tone: beat, type: (beatsAmt <= 16 ? beatsAmt : 16), lane: lane });
     }
     // console.log("### bpm===" + bpm + "/bar===" + bar + "/lane===" + lane + "/beats===" + beats);
     return beatsArr;
@@ -390,6 +394,17 @@ function asyncFun(fun, response) { // “耗时”操作
         function(error, stdout, stderr) {
             fun(response);
         });
+}
+
+// 扩展工具函数
+Array.prototype.contains = function(obj) {
+    var i = this.length;
+    while (i--) {
+        if (this[i] === obj) {
+            return true;
+        }
+    }
+    return false;
 }
 
 exports.start = start;
