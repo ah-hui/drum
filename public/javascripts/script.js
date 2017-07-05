@@ -22,7 +22,7 @@ var gameStatus;
 var gameStart, gameTimer, anime, elapsed = ceil = min = sec = 0;
 var points = perfectHits = goodHits = missHits = 0;
 
-var CANVAS_WIDTH, CANVAS_HEIGHT, DRAW_INTERVAL = 1000 / 120,
+var CANVAS_WIDTH, CANVAS_HEIGHT, DRAW_INTERVAL = 1000 / 60,
     GENERATE_INTERVAL,
     SPACING = 5,
     NOTE_WIDTH = LANE_WIDTH = 80,
@@ -130,18 +130,6 @@ CanvasRenderingContext2D.prototype.fillRoundRect = function(x, y, w, h, r) {
 }
 
 function clear() {
-    // clear fg
-    fgCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    // fill fg background - 全透明
-    fgCtx.fillStyle = "rgba(0,0,0,0)";
-    fgCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    // draw fg background img - 半透明
-    fgCtx.globalAlpha = 0.2;
-    fgCtx.drawImage(background.img, background.x, background.y, background.w, background.h);
-    fgCtx.drawImage(background.img, background.x, background.y - background.h, background.w, background.h);
-    fgCtx.globalAlpha = 1;
-
     // clear fg
     fgCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     // fill fg background - 全透明
@@ -333,7 +321,7 @@ function drawSceneCache() {
     // 绘制辅助线
     var barRemove = []; // 记录消失的辅助线index以便删除
     barLines.forEach(function(e, index) {
-        fgCacheCtx.fillStyle = "white";
+        fgCacheCtx.fillStyle = "#555";
         fgCacheCtx.fillRect(e.x, e.y, e.w, e.h);
         e.x += e.dx;
         e.y += e.dy;
@@ -623,8 +611,8 @@ function initGame() {
     console.log("ANIME_DY=" + ANIME_DY);
 
     // 像素级别操作尽量用整数
-    ANIME_DY = (0.5 + ANIME_DY) | 0;
-    console.log("ANIME_DY=" + ANIME_DY);
+    // ANIME_DY = (0.5 + ANIME_DY) | 0;
+    // console.log("ANIME_DY=" + ANIME_DY);
 
     // 背景层 - 不重绘
     bgCanvas = $("#bg")[0];
