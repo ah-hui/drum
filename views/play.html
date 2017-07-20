@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <span id="dtx" class="hide">{{dtx}}</span>
+    <span id="dtx" style="display:none;">{{dtx}}</span>
 
     <header>
         <h2>Drum V0.1</h2>
@@ -45,6 +45,10 @@
                 <a href="javascript:goFocus();" class="sidefocus"><i class="fa fa-dot-circle-o fa-3x" style="color:#fff;margin-left: 9px;margin-top:6px;"></i></a>
             </li>
         </ul>
+    </div>
+
+    <div class="" style="position:absolute;top:20%;left:1%;z-index:1000;">
+        <button id="playAndPause" type="button">&nbsp;暂停&nbsp;</button>
     </div>
 
     <!-- jQuery 1.12.4 -->
@@ -83,6 +87,9 @@
                     return false;
                 case 27: //Esc
                     console.log("Esc");
+                    break;
+                case 80: //P-Pause
+                    $("#playAndPause").click();
                     break;
                 default:
                     //console.log(event.keyCode);

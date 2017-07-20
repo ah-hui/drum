@@ -285,9 +285,9 @@ function parseDtxLine(bpm, bar, lane, beats) {
         if (beat === "00") {
             continue;
         }
-        var pos = (16 * (i - 1) / beatsAmt + 1) + barcode * 16; // 每个小节分为16份
+        var pos = (16 * (i - 1) / beatsAmt + 1) + barcode * 16 - 1; // 每个小节分为16份,从零计
         if ((16 * (i - 1)) % beatsAmt !== 0) { // 除不尽？（失真）
-            pos = Math.ceil(16 * (i - 1) / beatsAmt) + 1 + barcode * 16;
+            pos = Math.ceil(16 * (i - 1) / beatsAmt) + 1 + barcode * 16 - 1;
             console.log("DTX-Line-Warning[除不尽上取整]: " + bar + lane + ": " + beats + "[" + (Math.ceil(16 * (i - 1) / beatsAmt) + 1) + "]");
         }
         beatsArr.push({ pos: pos, tone: beat, type: (beatsAmt <= 16 ? beatsAmt : 16), lane: lane });

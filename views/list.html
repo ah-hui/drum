@@ -287,6 +287,13 @@
                 preview.loop = true;
                 preview.volume = 0.9;
                 preview.play(); // 浏览器对音频格式支持不同可能报错：ERROR:Uncaught (in promise) DOMException: The element has no supported sources.
+                // 测试audio的pause和play
+                // setTimeout(function() {
+                //     preview.pause();
+                // }, 2000);
+                // setTimeout(function() {
+                //     preview.play();
+                // }, 4000);
             }
 
         }
