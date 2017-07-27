@@ -131,8 +131,8 @@ function getDtxBaseInfo(data, detail) {
         if (preview.indexOf(";") > -1) { // 剔除备注
             preview = preview.substring(0, preview.indexOf(";"));
         }
-        detail.preview = dir + "/" + preview.replace("#PREVIEW:", "").trim();
-        // detail.preview = libPath.join(dir, previewMatch[0].replace("#PREVIEW:", "").trim());
+        // detail.preview = dir + "/" + preview.replace("#PREVIEW:", "").trim();
+        detail.preview = libPath.join(dir, preview.replace("#PREVIEW:", "").trim());
     }
     if (preimageMatch) { // 识别preimage
         var preimage = preimageMatch[0];
@@ -200,7 +200,8 @@ function getDtxBody(data, detail) {
         }
         if (e.match(/^#WAV[0-9A-Za-z]{2}:/)) { // 匹配多媒体资源 - wav
             var code = e.substring(4, 6);
-            var source = dir + "/" + e.replace("#WAV" + code + ":", "").trim();
+            // var source = dir + "/" + e.replace("#WAV" + code + ":", "").trim();
+            var source = libPath.join(dir, e.replace("#WAV" + code + ":", "").trim()).replace(/\\/g, "/");
             var flag = false;
             result.wav.forEach(function(w) {
                 if (w.code === code) {

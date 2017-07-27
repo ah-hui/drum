@@ -3,7 +3,14 @@
  *  -支持5鼓3镲；
  *  -支持最细十六分音符，更细音符将自动算法转换；可以读取更细音符的dtx，算法完成不完全转换（(音符位置/总长度)*16注意查重）
  *  -非垂直同步-每首歌可能fps不同
+ *  -引入新歌时
  * 注：1.如果连接电子鼓请自行解决按键映射问题
+ */
+
+/**
+ * 开发及发布注意事项
+ * 1.游戏最终设计是可暂停,但暂时不做暂停的支持;
+ * 2.引入新歌时,请先检查全部wav是否格式正确;
  */
 
 /**
@@ -41,7 +48,7 @@ var dtx, dtxStack, crotchet, semiquaver,
     velocity, // 运动速度(px/ms) - bpm算出一拍持续时间,规定舞台高度=3.3个节拍,就可以算出速度
     currentBeat = -1, // 当前重绘时节拍序号
     currentSemiquaver = -1, // 当前重绘时十六分音符序号
-    bgCanvas, bgCtx, fgCanvas, fgCtx, efCanvas, efCtx, background, sounds = [];
+    bgCanvas, bgCtx, fgCanvas, fgCtx, efCanvas, efCtx, background, sounds = {};
 // 业务相关变量 - 得分/乐器
 var crash, hi_hat, snare, kick, tom1, tom2, tom3, ride, land, lanes = {},
     barLen = 0,
@@ -97,19 +104,20 @@ function initGame() {
     efCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     // 打击判定的水平位置
     land = new Land(0, 0, LAND_HEIGHT, LAND_WIDTH, 20);
-    // 初始化通道 - 8个通道
+    // 初始化通道 - 8个通道 + BGM通道
     // LC HH SD BD HT LT FT RD
     // 1A 11 12 13 14 15 17 19
-    lanes["1A"] = (new Lane(0, "1A", null, 1 * SPACING + SPACING + 0 * LANE_WIDTH, 2 * SPACING, "#016AFF"));
-    var hh_lane = new Lane(1, "11", "18", 2 * SPACING + SPACING + 1 * LANE_WIDTH, 2 * SPACING, "#00D5FF");
-    lanes["11"] = (hh_lane);
-    lanes["18"] = (hh_lane);
-    lanes["12"] = (new Lane(2, "12", null, 3 * SPACING + SPACING + 2 * LANE_WIDTH, 2 * SPACING, "#FF0204"));
-    lanes["13"] = (new Lane(3, "13", null, 4 * SPACING + SPACING + 3 * LANE_WIDTH, 2 * SPACING, "#FF9EE9"));
-    lanes["14"] = (new Lane(4, "14", null, 5 * SPACING + SPACING + 4 * LANE_WIDTH, 2 * SPACING, "#F2FA0F"));
-    lanes["15"] = (new Lane(5, "15", null, 6 * SPACING + SPACING + 5 * LANE_WIDTH, 2 * SPACING, "#2853FA"));
-    lanes["17"] = (new Lane(6, "17", null, 7 * SPACING + SPACING + 6 * LANE_WIDTH, 2 * SPACING, "#39A923"));
-    lanes["19"] = (new Lane(7, "19", null, 8 * SPACING + SPACING + 7 * LANE_WIDTH, 2 * SPACING, "#016AFF"));
+    lanes["01"] = (new Lane(101, "01", 1 * SPACING + SPACING + 0 * LANE_WIDTH, 2 * SPACING, "#FFF")); // BGM通道-隐藏
+    lanes["1A"] = (new Lane(0, "1A", 1 * SPACING + SPACING + 0 * LANE_WIDTH, 2 * SPACING, "#016AFF"));
+    var hh_lane = new Lane(1, "11", 2 * SPACING + SPACING + 1 * LANE_WIDTH, 2 * SPACING, "#00D5FF");
+    lanes["11"] = (hh_lane); // 踩镲主音色
+    lanes["18"] = (hh_lane); // 踩镲副音色（共用一个对象）
+    lanes["12"] = (new Lane(2, "12", 3 * SPACING + SPACING + 2 * LANE_WIDTH, 2 * SPACING, "#FF0204"));
+    lanes["13"] = (new Lane(3, "13", 4 * SPACING + SPACING + 3 * LANE_WIDTH, 2 * SPACING, "#FF9EE9"));
+    lanes["14"] = (new Lane(4, "14", 5 * SPACING + SPACING + 4 * LANE_WIDTH, 2 * SPACING, "#F2FA0F"));
+    lanes["15"] = (new Lane(5, "15", 6 * SPACING + SPACING + 5 * LANE_WIDTH, 2 * SPACING, "#2853FA"));
+    lanes["17"] = (new Lane(6, "17", 7 * SPACING + SPACING + 6 * LANE_WIDTH, 2 * SPACING, "#39A923"));
+    lanes["19"] = (new Lane(7, "19", 8 * SPACING + SPACING + 7 * LANE_WIDTH, 2 * SPACING, "#016AFF"));
     // 开始重绘
     gameStatus = false; // 目前只用来做不重绘部分的渲染
     startTime = +new Date;
@@ -141,14 +149,6 @@ function update() {
         background.y = background.y - background.h;
     }
     // 前景(音符/节拍线)运动状态更新
-    // var crotchetDivide = duration / crotchet;
-    // var crotchetIntPart = crotchetDivide | 0;
-    // var crotchetFracPart = crotchetDivide - crotchetIntPart;
-    // if (crotchetIntPart > currentBeat) { // 新的辅助线
-    //     currentBeat = crotchetIntPart;
-    //     var crotchetOffset = crotchetFracPart * velocity; // 实验值0.000-0.004
-    //     barLines.push(new BarLine(0, 2 * SPACING - NOTE_HEIGHT / 2, LAND_WIDTH, BAR_HEIGHT, null));
-    // }
     // 音符 - 规定整首音乐最小细分单位是十六分音符,每个十六分音符检查是否有新的音符
     // 和 节拍(辅助)线 - 四分音符为一拍,一拍一线
     var semiquaverDivide = duration / semiquaver;
@@ -157,7 +157,7 @@ function update() {
     if (semiquaverIntPart > currentSemiquaver) {
         currentSemiquaver = semiquaverIntPart;
         var semiquaverOffset = semiquaverFracPart * velocity; // 实验值0.000-0.014
-        console.log(semiquaverOffset);
+        // console.log(semiquaverOffset);
         // 新的辅助线
         var currentCrotchet = semiquaverIntPart / 4;
         if (semiquaverIntPart % 4 === 0 && currentCrotchet > currentBeat) {
@@ -175,14 +175,13 @@ function update() {
                 var lane = lanes[e.lane];
                 if (lane) {
                     noteAmt++;
-                    console.log(lane.y);
-                    lane.notes.push(new Note(lane.x, lane.y, NOTE_WIDTH, NOTE_HEIGHT, null));
+                    if (!lane.types.contains(e.tone)) {
+                        lane.types.push(e.tone);
+                    }
+                    lane.notes.push(new Note(lane.x, lane.y, NOTE_WIDTH, NOTE_HEIGHT, e.tone, null));
                     lane.isEmpty = false;
                 }
             });
-        }
-        if (currentBeat === 9) {
-            debugger;
         }
     }
 }
@@ -246,7 +245,7 @@ function draw() {
     }
     // 绘制音符
     for (var prop in lanes) {
-        if (prop === "18") { // 忽略副音色-否则会导致该通道速度加倍
+        if (prop === "18") { // 忽略副音色（因为主副音色共用同一个对象）-否则会导致该通道速度加倍
             continue;
         }
         var lane = lanes[prop];
@@ -255,10 +254,31 @@ function draw() {
             fgCtx.fillStyle = lane.color;
             lane.notes.forEach(function(e, index) {
                 fgCtx.fillRoundRect(e.x, e.y, e.w, e.h, ROUND_RADIUS).fill();
-                // debugger;
+                var noteStyle = lane.styles[lane.types.indexOf(e.tone)];
+                switch (noteStyle) {
+                    case "none":
+                        break;
+                    case "circle":
+                        fgCtx.strokeCircleStyle(e.x + e.w / 2, e.y + e.h / 2, e.h * 0.8, "white");
+                        break;
+                    case "dblCircle":
+                        fgCtx.strokeDblCircleStyle(e.x + e.w / 2, e.y + e.h / 2, e.h * 0.8, "white");
+                        break;
+                    default:
+                        // 第四种开始不予支持直接使用默认style-none
+                }
                 e.y += deltaY;
-                if (e.y > REMOVE_HEIGHT) { // 消失
-                    toRemove.push(index);
+                if (e.y > REMOVE_HEIGHT) {
+                    toRemove.push(index); // 音符消失
+                    // if (e.tone !== "01") {
+                    var gonnaPlay = sounds[e.tone].audio;
+                    if (gonnaPlay.paused) { // 暂停中
+                        gonnaPlay.play(); // 播放音符声音
+                    } else { // 播放中
+                        gonnaPlay.currentTime = 0;
+                        gonnaPlay.play();
+                    }
+                    // }
                 }
             });
             if (toRemove.length > 0) {
@@ -353,6 +373,19 @@ function drawBackground() {
  * 发送ajax,请求dtx文件信息
  */
 function readDtx(callback) {
+    // testaudio - start
+    console.log("===testaudio - start");
+    var soundddd = new Audio();
+    soundddd.src = "public/sound/Beyond - GuangHuiSuiYue/sounds/bgm.wav";
+    // soundddd.src = "public/sound/baby one more time 布兰妮/drum/BD.XA.wav";
+    // soundddd.src = "./public/sound/baby one more time 布兰妮/pre.mp3";
+    // soundddd.src = "public/sound/baby one more time 布兰妮/drum/SDYOWIE.wav";
+    soundddd.currentTime = 0;
+    soundddd.loop = true;
+    soundddd.volume = 0.9;
+    // soundddd.play();
+    console.log("===testaudio - end");
+    // testaudio - end
     $.ajax({
         url: "parseDtx.do",
         type: "POST",
@@ -443,8 +476,21 @@ function initImage() {
  * 声音加载
  */
 function initSound() {
-    sounds[0] = new Audio();
-    sounds[0].volume = 0.9;
+    var wavs = dtx.wav;
+    wavs.forEach(function(e) {
+        e.audio = new Audio();
+        // if (e.code === "01") {
+        //     e.audio.volume = 0.1;
+        // } else {
+        e.audio.volume = e.volume ? (e.volume / 100) : 0.9;
+        // }
+        e.audio.src = e.source.substring(0, e.source.lastIndexOf(".")) + e.source.substring(e.source.lastIndexOf("."), e.source.length).toLowerCase(); // 对大写后缀的容错
+        // 查重未做
+        sounds[e.code] = e;
+        delete sounds[e.code].code;
+    });
+    console.log(sounds);
+    // sounds["01"].audio.play();
 }
 /**
  * 注册事件监听
@@ -702,11 +748,12 @@ function kickHit() {
 /**
  * 音符 - 音乐瀑布落下的音符
  */
-function Note(x, y, w, h, img) {
+function Note(x, y, w, h, tone, img) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
+    this.tone = tone;
     this.img = img;
 }
 /**
@@ -721,17 +768,18 @@ function BarLine(x, y, w, h, img) {
 }
 /**
  * 音符泳道
+ * 一个通道支持多种音色,不同音色不仅听起来不同,看起来也不同
  */
-function Lane(type, code, vicecode, x, y, color) {
+function Lane(type, code, x, y, color) {
     this.isEmpty = true;
-    this.type = type;
-    this.code = code;
-    this.vicecode = vicecode; // 副音色code
+    this.type = this.type; // 通道序号
+    this.code = code; // 通道编号
     this.x = x;
     this.y = y;
     this.color = color;
-    this.notes = [];
-    this.foremost;
+    this.notes = []; // 通道下有效音符（屏幕显示）
+    this.types = []; // 支持多种音色
+    this.styles = ["none", "circle", "dblCircle"]; // 默认支持最多三种音色样式,可特化修改
 }
 /**
  * 音符hit判定
@@ -783,6 +831,48 @@ CanvasRenderingContext2D.prototype.fillRoundRect = function(x, y, w, h, r) {
     return this;
     // this.fillRect(x, y, w, h);
     // return this;
+}
+
+/**
+ * 绘制附加音色的circle类型
+ * x,y,r,color
+ */
+CanvasRenderingContext2D.prototype.strokeCircleStyle = function(x, y, r, color) {
+    this.lineWidth = 2;
+    this.strokeStyle = color;
+    this.beginPath();
+    this.arc(x, y, r, 0, Math.PI * 2, true);
+    this.stroke();
+    return this;
+}
+
+/**
+ * 绘制附加音色的dblCircle类型
+ * x,y,r,color
+ */
+CanvasRenderingContext2D.prototype.strokeDblCircleStyle = function(x, y, r, color) {
+    this.strokeStyle = color;
+    this.lineWidth = 2;
+    this.beginPath();
+    this.arc(x, y, r, 0, Math.PI * 2, true);
+    this.stroke();
+    this.beginPath();
+    this.arc(x, y, r, 0, Math.PI * 2, true);
+    this.stroke();
+    return this;
+}
+
+/**
+ * 数组工具函数 - 数组是否包含元素
+ */
+Array.prototype.contains = function(obj) {
+    var i = this.length;
+    while (i--) {
+        if (this[i] === obj) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
