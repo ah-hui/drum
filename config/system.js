@@ -12,7 +12,7 @@ exports.viewroot = "views";
 // 视图文件扩展名
 exports.view_ext = [".html", ".ico"];
 // 静态静态文件扩展名
-exports.res_ext = [".js", ".css", ".jpg", ".png", ".ttf", ".woff", ".woff2", ".wav", ".mp3", ".avi", ".xa"];
+exports.res_ext = [".js", ".css", ".jpg", ".png", ".ttf", ".woff", ".woff2", ".wav", ".mp3", ".avi", ".xa", ".ogg"];
 // 业务逻辑扩展名
 exports.bus_ext = [".do"];
 // 歌曲列表目录

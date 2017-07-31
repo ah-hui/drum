@@ -11,6 +11,7 @@
  * 开发及发布注意事项
  * 1.游戏最终设计是可暂停,但暂时不做暂停的支持;
  * 2.引入新歌时,请先检查全部wav是否格式正确;
+ * 3.暂停可能导致误差或延迟增大？
  */
 
 /**
@@ -50,7 +51,9 @@ var dtx, dtxStack, crotchet, semiquaver,
     currentSemiquaver = -1, // 当前重绘时十六分音符序号
     bgCanvas, bgCtx, fgCanvas, fgCtx, efCanvas, efCtx, background, sounds = {};
 // 业务相关变量 - 得分/乐器
-var crash, hi_hat, snare, kick, tom1, tom2, tom3, ride, land, lanes = {},
+var bgm, // 背景音乐
+    bgmwav, // 背景音乐通道
+    crash, hi_hat, snare, kick, tom1, tom2, tom3, ride, land, lanes = {},
     barLen = 0,
     barLines = [],
     crashAnime, rideAnime, hi_hatAnime, snareAnime, tom1Anime, tom2Anime, tom3Anime, kickAnime, hi_hatStatus = false, // false:open,true:close
@@ -194,13 +197,17 @@ function forceGetElementFromStack(stack, position) {
     if (position < 0) {
         return null;
     }
-    if (stack.peek().pos === position) {
-        return stack.pop();
-    }
-    if (stack.peek().pos > position) {
+    var element = stack.peek();
+    if (!element) {
         return null;
     }
-    if (stack.peek().pos < position) {
+    if (element.pos === position) {
+        return stack.pop();
+    }
+    if (element.pos > position) {
+        return null;
+    }
+    if (element.pos < position) {
         console.log("ERROR_WHEN_PLAY_STACK_POS_OVER [栈滞后于重绘,错误地过度pop]");
         stack.pop();
         return forceGetElementFromStack(stack, position);
@@ -270,7 +277,13 @@ function draw() {
                 e.y += deltaY;
                 if (e.y > REMOVE_HEIGHT) {
                     toRemove.push(index); // 音符消失
-                    // if (e.tone !== "01") {
+                }
+                if (e.y > LAND_HEIGHT && !e.played) {
+                    e.played = true;
+                    if (e.tone === bgmwav) {
+                        bgm = sounds[e.tone].audio;
+                        // bgm.currentTime = 0.1; // bgm提前0.05秒播放
+                    }
                     var gonnaPlay = sounds[e.tone].audio;
                     if (gonnaPlay.paused) { // 暂停中
                         gonnaPlay.play(); // 播放音符声音
@@ -278,7 +291,6 @@ function draw() {
                         gonnaPlay.currentTime = 0;
                         gonnaPlay.play();
                     }
-                    // }
                 }
             });
             if (toRemove.length > 0) {
@@ -369,6 +381,18 @@ function drawBackground() {
     // efCtx.drawImage(kick.img, kick.x, kick.y, kick.w, kick.h);
     // efCtx.drawImage(ride.img, ride.x, ride.y, ride.w, ride.h);
 }
+// 暂停背景音乐
+function stopBgm() {
+    if (bgm && !bgm.paused) {
+        bgm.pause();
+    }
+}
+// 再开背景音乐
+function resumeBgm() {
+    if (bgm && bgm.paused) {
+        bgm.play();
+    }
+}
 /**
  * 发送ajax,请求dtx文件信息
  */
@@ -382,7 +406,7 @@ function readDtx(callback) {
     // soundddd.src = "public/sound/baby one more time 布兰妮/drum/SDYOWIE.wav";
     soundddd.currentTime = 0;
     soundddd.loop = true;
-    soundddd.volume = 0.9;
+    soundddd.volume = 0.01;
     // soundddd.play();
     console.log("===testaudio - end");
     // testaudio - end
@@ -414,6 +438,7 @@ function readDtx(callback) {
  * 准备初始化所需数据
  */
 function initData() {
+    bgmwav = dtx.bgmwav ? dtx.bgmwav : "01";
     crotchet = 60000 / dtx.bpm; // 四分音符时值
     semiquaver = 60000 / dtx.bpm / 4; // 十六分音符时值
     velocity = (LAND_HEIGHT - 2 * SPACING) / (3.3 * crotchet) // 运动速度(px/ms)
@@ -479,11 +504,11 @@ function initSound() {
     var wavs = dtx.wav;
     wavs.forEach(function(e) {
         e.audio = new Audio();
-        // if (e.code === "01") {
-        //     e.audio.volume = 0.1;
-        // } else {
-        e.audio.volume = e.volume ? (e.volume / 100) : 0.9;
-        // }
+        if (e.code === "01") {
+            e.audio.volume = 0.1;
+        } else {
+            e.audio.volume = e.volume ? (e.volume / 100) : 0.9;
+        }
         e.audio.src = e.source.substring(0, e.source.lastIndexOf(".")) + e.source.substring(e.source.lastIndexOf("."), e.source.length).toLowerCase(); // 对大写后缀的容错
         // 查重未做
         sounds[e.code] = e;
@@ -540,6 +565,8 @@ function initEvent() {
             //暂停动画
             lastTime = +new Date;
             paused = true;
+            $("#playAndPause").html("&nbsp;开始&nbsp;");
+            stopBgm();
             // cancelAnimationFrame(gameStart);
         }
     };
@@ -548,12 +575,14 @@ function initEvent() {
         paused = paused ? false : true;
         if (paused) {
             $(this).html("&nbsp;开始&nbsp;");
+            stopBgm();
             // cancelAnimationFrame(gameStart);
         } else {
             if (!gameStart) {
                 startTime = +new Date;
             }
             gameStart = requestAnimationFrame(animate);
+            resumeBgm();
             $(this).html("&nbsp;暂停&nbsp;");
         }
     });
