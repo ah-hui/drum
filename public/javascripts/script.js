@@ -278,7 +278,8 @@ function draw() {
                 if (e.y > REMOVE_HEIGHT) {
                     toRemove.push(index); // 音符消失
                 }
-                if (e.y > LAND_HEIGHT && !e.played) {
+                // if (!e.played && e.y > LAND_HEIGHT) {
+                if (!e.played && Math.abs(e.y - LAND_HEIGHT) < (deltaY / 2)) {
                     e.played = true;
                     if (e.tone === bgmwav) {
                         bgm = sounds[e.tone].audio;
