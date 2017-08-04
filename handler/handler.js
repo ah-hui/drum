@@ -189,7 +189,7 @@ function getDtxBaseInfo(data, detail) {
 function getDtxBody(data, detail) {
     var dir = detail.path.substring(0, detail.path.lastIndexOf("/"));
     var arr = data.split("\r\n");
-    var result = { wav: [], score: [], notes: [] };
+    var result = { wav: [], score: [], notes: [], bpmChange: [] };
     // score:[{barcode:002,lane:[{lanecode:11,beats:"0202"},{lanecode:12...},{}]},{barcode:003...}]
     arr.forEach(function(e) {
         if (e.indexOf(";") > -1) { // 剔除备注
@@ -225,6 +225,20 @@ function getDtxBody(data, detail) {
             });
             if (!flag) {
                 result.wav.push({ code: code, volume: volume });
+            }
+        }
+        if (e.match(/^#BPM[0-9]{2}:/)) { // 匹配BPM变化 - BPM变化记录在08通道
+            var code = e.substring(4, 6);
+            var value = e.replace("#BPM" + code + ":", "").trim();
+            var flag = false;
+            result.bpmChange.forEach(function(c) {
+                if (c.code === code) {
+                    flag = true;
+                    c.volume = volume;
+                }
+            });
+            if (!flag) {
+                result.bpmChange.push({ code: code, value: value });
             }
         }
         if (e.match(/^#\d{3}[0-9A-Ca-c]{2}:/)) { // 匹配正文开头

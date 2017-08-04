@@ -3,7 +3,7 @@
  *  -支持5鼓3镲；
  *  -支持最细十六分音符，更细音符将自动算法转换；可以读取更细音符的dtx，算法完成不完全转换（(音符位置/总长度)*16注意查重）
  *  -非垂直同步-每首歌可能fps不同
- *  -引入新歌时
+ *  -支持bpm变化的歌曲；
  * 注：1.如果连接电子鼓请自行解决按键映射问题
  */
 
@@ -279,7 +279,7 @@ function draw() {
                     toRemove.push(index); // 音符消失
                 }
                 // if (!e.played && e.y > LAND_HEIGHT) {
-                if (!e.played && Math.abs(e.y - LAND_HEIGHT) < (deltaY / 2)) {
+                if (!e.played && Math.abs(e.y - LAND_HEIGHT) < deltaY) { // 表达式右侧太小可能会错过音符
                     e.played = true;
                     if (e.tone === bgmwav) {
                         bgm = sounds[e.tone].audio;
